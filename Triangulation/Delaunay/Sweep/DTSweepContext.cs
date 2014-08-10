@@ -1,4 +1,6 @@
-﻿/* Poly2Tri
+﻿//BSD 2014, WinterDev
+
+/* Poly2Tri
  * Copyright (c) 2009-2010, Poly2Tri Contributors
  * http://code.google.com/p/poly2tri/
  *
@@ -96,10 +98,12 @@ namespace Poly2Tri
                 Triangulatable.AddTriangle(triangle);
 
                 for (int i = 0; i < 3; i++)
+                {
                     if (!triangle.EdgeIsConstrained[i])
                     {
                         MeshCleanReq(triangle.Neighbors[i]);
                     }
+                }
             }
         }
 
@@ -135,11 +139,11 @@ namespace Poly2Tri
             DelaunayTriangle iTriangle = new DelaunayTriangle(Points[0], Tail, Head);
             Triangles.Add(iTriangle);
 
-            head = new AdvancingFrontNode(iTriangle.Points[1]);
+            head = new AdvancingFrontNode(iTriangle.P1);
             head.Triangle = iTriangle;
-            middle = new AdvancingFrontNode(iTriangle.Points[0]);
+            middle = new AdvancingFrontNode(iTriangle.P0);
             middle.Triangle = iTriangle;
-            tail = new AdvancingFrontNode(iTriangle.Points[2]);
+            tail = new AdvancingFrontNode(iTriangle.P2);
 
             Front = new AdvancingFront(head, tail);
             Front.AddNode(middle);
@@ -162,12 +166,29 @@ namespace Poly2Tri
         /// </summary>
         public void MapTriangleToNodes(DelaunayTriangle t)
         {
-            for (int i = 0; i < 3; i++)
-                if (t.Neighbors[i] == null)
-                {
-                    AdvancingFrontNode n = Front.LocatePoint(t.PointCWFrom(t.Points[i]));
-                    if (n != null) n.Triangle = t;
-                }
+            //for (int i = 0; i < 3; i++)
+            //    if (t.Neighbors[i] == null)
+            //    {
+            //        AdvancingFrontNode n = Front.LocatePoint(t.PointCWFrom(t.Points[i]));
+            //        if (n != null) n.Triangle = t;
+            //    }
+
+            if (t.Neighbors[0] == null)
+            {
+                AdvancingFrontNode n = Front.LocatePoint(t.PointCWFrom(t.P0));
+                if (n != null) n.Triangle = t;
+            }
+            if (t.Neighbors[1] == null)
+            {
+                AdvancingFrontNode n = Front.LocatePoint(t.PointCWFrom(t.P1));
+                if (n != null) n.Triangle = t;
+            }
+            if (t.Neighbors[2] == null)
+            {
+                AdvancingFrontNode n = Front.LocatePoint(t.PointCWFrom(t.P2));
+                if (n != null) n.Triangle = t;
+            }
+
         }
 
         public override void PrepareTriangulation(Triangulatable t)

@@ -1,4 +1,6 @@
-﻿/* Poly2Tri
+﻿//BSD 2014, WinterDev
+
+/* Poly2Tri
  * Copyright (c) 2009-2010, Poly2Tri Contributors
  * http://code.google.com/p/poly2tri/
  *
@@ -574,7 +576,7 @@ namespace Poly2Tri
         //    DTSweepConstraint edge = eq.FindFirst(ep);
         //    edge.P = p;
         //    constraintBuilder.BuildConstraint(ep, p);// Et tu, Brute? --MM
-         
+
 
         //    //        // Redo this edge now that we have split the constraint
         //    //          newEdgeEvent( tcx, edge, triangle, point );
@@ -953,7 +955,24 @@ namespace Poly2Tri
                 DelaunayTriangle ot = t.Neighbors[i];
                 if (ot == null) continue;
 
-                TriangulationPoint p = t.Points[i];
+                TriangulationPoint p = null;
+                switch (i)
+                {
+                    case 0:
+                    default:
+                        {
+                            p = t.P0;
+                        } break;
+                    case 1:
+                        {
+                            p = t.P1;
+                        } break;
+                    case 2:
+                        {
+                            p = t.P2;
+                        } break;
+                }
+                //TriangulationPoint p = t.Points[i];
                 TriangulationPoint op = ot.OppositePoint(t, p);
                 int oi = ot.IndexOf(op);
                 // If this is a Constrained Edge or a Delaunay Edge(only during recursive legalization)

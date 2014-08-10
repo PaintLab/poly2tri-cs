@@ -35,17 +35,15 @@ namespace Poly2Tri
 {
     public class TriangulationPoint
     {
-        // List of edges this point constitutes an upper ending point (CDT)
-
-
+        // List of edges this point constitutes an upper ending point (CDT) 
         public readonly double X, Y;
         List<DTSweepConstraint> myEdges;
 
         public TriangulationPoint(double x, double y)
         {
             X = x; Y = y;
+            myEdges = null;
         }
-
         public override string ToString()
         {
             return "[" + X + "," + Y + "]";
@@ -91,5 +89,9 @@ namespace Poly2Tri
             }
         }
         public bool HasEdges { get { return myEdges != null; } }
+        public static bool IsEqualPointCoord(TriangulationPoint a, TriangulationPoint b)
+        {
+            return a.X == b.X && a.Y == b.Y;
+        }
     }
 }

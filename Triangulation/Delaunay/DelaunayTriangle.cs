@@ -1,4 +1,6 @@
-﻿/* Poly2Tri
+﻿//BSD 2014, WinterDev
+
+/* Poly2Tri
  * Copyright (c) 2009-2010, Poly2Tri Contributors
  * http://code.google.com/p/poly2tri/
  *
@@ -46,27 +48,84 @@ namespace Poly2Tri
 {
     public class DelaunayTriangle
     {
-        public FixedArray3<TriangulationPoint> Points;
+        // public FixedArray3<TriangulationPoint> Points;
         public FixedArray3<DelaunayTriangle> Neighbors;
-        public FixedBitArray3 EdgeIsConstrained, EdgeIsDelaunay;
+        public FixedBitArray3 EdgeIsConstrained;
+        public FixedBitArray3 EdgeIsDelaunay;
+
+
+        public TriangulationPoint P0, P1, P2;
+        DelaunayTriangle N0, N1, N2;
+        int edgedNoteFlags;
+
         public bool IsInterior { get; set; }
         public DelaunayTriangle(TriangulationPoint p1, TriangulationPoint p2, TriangulationPoint p3)
         {
-            Points[0] = p1;
-            Points[1] = p2;
-            Points[2] = p3;
+            P0 = p1;
+            P1 = p2;
+            P2 = p3;
+
+            this.P0 = p1;
+            this.P1 = p2;
+            this.P2 = p3;
         }
         public int IndexOf(TriangulationPoint p)
         {
-            int i = Points.IndexOf(p);
-            if (i == -1) throw new Exception("Calling index with a point that doesn't exist in triangle");
-            return i;
+
+            if (TriangulationPoint.IsEqualPointCoord(P0, p)) return 0;
+            if (TriangulationPoint.IsEqualPointCoord(P1, p)) return 1;
+            if (TriangulationPoint.IsEqualPointCoord(P2, p)) return 2;
+
+            throw new Exception("Calling index with a point that doesn't exist in triangle");
+
+            return -1;
+            //return -1;
+            //int i = Points.IndexOf(p);
+            //if (i == -1) throw new Exception("Calling index with a point that doesn't exist in triangle");
+            //return i;
+        }
+        int InternalIndexOf(TriangulationPoint p)
+        {
+
+            if (TriangulationPoint.IsEqualPointCoord(P0, p)) return 0;
+            if (TriangulationPoint.IsEqualPointCoord(P1, p)) return 1;
+            if (TriangulationPoint.IsEqualPointCoord(P2, p)) return 2;
+
+            return -1;
+            //return -1;
+            //int i = Points.IndexOf(p);
+            //if (i == -1) throw new Exception("Calling index with a point that doesn't exist in triangle");
+            //return i;
+        }
+        public int IndexOf2(TriangulationPoint p)
+        {
+
+            if (TriangulationPoint.IsEqualPointCoord(P0, p)) return 0;
+            if (TriangulationPoint.IsEqualPointCoord(P1, p)) return 1;
+            if (TriangulationPoint.IsEqualPointCoord(P2, p)) return 2;
+
+            return -1;
+        }
+        public bool ContainsPoint(TriangulationPoint p)
+        {
+            if (TriangulationPoint.IsEqualPointCoord(P0, p)) return true;
+            if (TriangulationPoint.IsEqualPointCoord(P1, p)) return true;
+            if (TriangulationPoint.IsEqualPointCoord(P2, p)) return true;
+            return false;
+        }
+        public int IndexCWFrom(TriangulationPoint p)
+        {
+            return (IndexOf(p) + 2) % 3;
+        }
+        public int IndexCCWFrom(TriangulationPoint p)
+        {
+            return (IndexOf(p) + 1) % 3;
         }
 
-        public int IndexCWFrom(TriangulationPoint p) { return (IndexOf(p) + 2) % 3; }
-        public int IndexCCWFrom(TriangulationPoint p) { return (IndexOf(p) + 1) % 3; }
-
-        public bool Contains(TriangulationPoint p) { return Points.Contains(p); }
+        public bool Contains(TriangulationPoint p)
+        {
+            return InternalIndexOf(p) >= 0;
+        }
 
         /// <summary>
         /// Update neighbor pointers
@@ -87,13 +146,13 @@ namespace Poly2Tri
         public void MarkNeighbor(DelaunayTriangle t)
         {
             // Points of this triangle also belonging to t
-            bool a = t.Contains(Points[0]);
-            bool b = t.Contains(Points[1]);
-            bool c = t.Contains(Points[2]);
+            bool a = t.Contains(P0);
+            bool b = t.Contains(P1);
+            bool c = t.Contains(P2);
 
-            if (b && c) { Neighbors[0] = t; t.MarkNeighbor(Points[1], Points[2], this); }
-            else if (a && c) { Neighbors[1] = t; t.MarkNeighbor(Points[0], Points[2], this); }
-            else if (a && b) { Neighbors[2] = t; t.MarkNeighbor(Points[0], Points[1], this); }
+            if (b && c) { Neighbors[0] = t; t.MarkNeighbor(P1, P2, this); }
+            else if (a && c) { Neighbors[1] = t; t.MarkNeighbor(P0, P2, this); }
+            else if (a && b) { Neighbors[2] = t; t.MarkNeighbor(P0, P1, this); }
             else throw new Exception("Failed to mark neighbor, doesn't share an edge!");
         }
 
@@ -105,19 +164,68 @@ namespace Poly2Tri
             return PointCWFrom(t.PointCWFrom(p));
         }
 
-        public DelaunayTriangle NeighborCWFrom(TriangulationPoint point) { return Neighbors[(Points.IndexOf(point) + 1) % 3]; }
-        public DelaunayTriangle NeighborCCWFrom(TriangulationPoint point) { return Neighbors[(Points.IndexOf(point) + 2) % 3]; }
-        public DelaunayTriangle NeighborAcrossFrom(TriangulationPoint point) { return Neighbors[Points.IndexOf(point)]; }
+        public DelaunayTriangle NeighborCWFrom(TriangulationPoint point)
+        {
+            return Neighbors[(IndexOf(point) + 1) % 3];
+        }
+        public DelaunayTriangle NeighborCCWFrom(TriangulationPoint point)
+        {
+            return Neighbors[(InternalIndexOf(point) + 2) % 3];
+        }
+        public DelaunayTriangle NeighborAcrossFrom(TriangulationPoint point)
+        {
+            return Neighbors[InternalIndexOf(point)];
+        }
 
-        public TriangulationPoint PointCCWFrom(TriangulationPoint point) { return Points[(IndexOf(point) + 1) % 3]; }
-        public TriangulationPoint PointCWFrom(TriangulationPoint point) { return Points[(IndexOf(point) + 2) % 3]; }
+        public TriangulationPoint PointCCWFrom(TriangulationPoint point)
+        {
+            switch ((InternalIndexOf(point) + 1) % 3)
+            {
+                case 0:
+                    {
+                        return this.P0;
+                    }
+                case 1:
+                    {
+                        return this.P1;
+                    }
+                case 2:
+                default:
+                    {
+                        return this.P2;
+                    }
+            }
+            //return Points[(IndexOf(point) + 1) % 3];
+        }
+        public TriangulationPoint PointCWFrom(TriangulationPoint point)
+        {
+            //return Points[(IndexOf(point) + 2) % 3];
+
+            switch ((InternalIndexOf(point) + 2) % 3)
+            {
+                case 0:
+                    {
+                        return this.P0;
+                    }
+                case 1:
+                    {
+                        return this.P1;
+                    }
+                case 2:
+                default:
+                    {
+                        return this.P2;
+                    }
+            }
+
+        }
 
         private void RotateCW()
         {
-            var t = Points[2];
-            Points[2] = Points[1];
-            Points[1] = Points[0];
-            Points[0] = t;
+            var t = P2;
+            P2 = P1;
+            P1 = P0;
+            P0 = t;
         }
 
         /// <summary>
@@ -128,38 +236,132 @@ namespace Poly2Tri
         public void Legalize(TriangulationPoint oPoint, TriangulationPoint nPoint)
         {
             RotateCW();
-            Points[IndexCCWFrom(oPoint)] = nPoint;
+            switch (IndexCCWFrom(oPoint))
+            {
+                case 0:
+                    {
+                        P0 = nPoint;
+                    } break;
+                case 1:
+                    {
+                        P1 = nPoint;
+                    } break;
+                case 2:
+                default:
+                    {
+                        P2 = nPoint;
+                    } break;
+
+            }
+            //Points[IndexCCWFrom(oPoint)] = nPoint;
         }
 
-        public override string ToString() { return Points[0] + "," + Points[1] + "," + Points[2]; }
+        public override string ToString() { return P0 + "," + P1 + "," + P2; }
 
         /// <summary>
         /// Finalize edge marking
         /// </summary>
         public void MarkNeighborEdges()
         {
-            for (int i = 0; i < 3; i++) if (EdgeIsConstrained[i] && Neighbors[i] != null)
-                {
-                    Neighbors[i].MarkConstrainedEdge(Points[(i + 1) % 3], Points[(i + 2) % 3]);
-                }
+            //for (int i = 0; i < 3; i++)
+            //{
+            //    if (EdgeIsConstrained[i] && Neighbors[i] != null)
+            //    {
+            //        Neighbors[i].MarkConstrainedEdge(Points[(i + 1) % 3], Points[(i + 2) % 3]);
+            //    }
+
+            //}
+
+            //-----------------
+            //0
+            if (EdgeIsConstrained[0] && Neighbors[0] != null)
+            {
+                //(0 + 1) % 3 => 2
+                //(0 + 2) % 3 => 1
+                Neighbors[0].MarkConstrainedEdge(P2, P1);
+            }
+            //-----------------
+            //1
+            if (EdgeIsConstrained[1] && Neighbors[1] != null)
+            {
+                //(1 + 1) % 3 => 1
+                //(1 + 2) % 3 => 0
+                Neighbors[1].MarkConstrainedEdge(P1, P0);
+            }
+            //-----------------
+            //2
+            if (EdgeIsConstrained[2] && Neighbors[2] != null)
+            {
+                //(2 + 1) % 3 => 0
+                //(2 + 2) % 3 => 1
+
+                Neighbors[2].MarkConstrainedEdge(P0, P1);
+            }
         }
 
         public void MarkEdge(DelaunayTriangle triangle)
         {
-            for (int i = 0; i < 3; i++) if (EdgeIsConstrained[i])
-                {
-                    triangle.MarkConstrainedEdge(Points[(i + 1) % 3], Points[(i + 2) % 3]);
-                }
+            //for (int i = 0; i < 3; i++)
+            //{
+            //    if (EdgeIsConstrained[i])
+            //    {
+            //        triangle.MarkConstrainedEdge(Points[(i + 1) % 3], Points[(i + 2) % 3]);
+            //    }
+            //}
+            if (EdgeIsConstrained[0])
+            {    //(0 + 1) % 3 => 2
+                //(0 + 2) % 3 => 1
+                triangle.MarkConstrainedEdge(P2, P1);
+            }
+            if (EdgeIsConstrained[1])
+            {   //(1 + 1) % 3 => 1
+                //(1 + 2) % 3 => 0
+                triangle.MarkConstrainedEdge(P1, P0);
+            }
+            if (EdgeIsConstrained[2])
+            {
+                //(2 + 1) % 3 => 0
+                //(2 + 2) % 3 => 1
+                triangle.MarkConstrainedEdge(P0, P1);
+            }
         }
 
         public void MarkEdge(List<DelaunayTriangle> tList)
         {
             foreach (DelaunayTriangle t in tList)
-                for (int i = 0; i < 3; i++)
-                    if (t.EdgeIsConstrained[i])
-                    {
-                        MarkConstrainedEdge(t.Points[(i + 1) % 3], t.Points[(i + 2) % 3]);
-                    }
+            {
+                //for (int i = 0; i < 3; i++)
+                //{
+                //    if (t.EdgeIsConstrained[i])
+                //    {
+                //        MarkConstrainedEdge(t.Points[(i + 1) % 3], t.Points[(i + 2) % 3]);
+                //    }
+                //}
+                //-----------------------------
+                //0
+                if (t.EdgeIsConstrained[0])
+                {
+                    //(0 + 1) % 3 => 2;
+                    //(0 + 2) % 3 => 1;
+                    MarkConstrainedEdge(t.P2, t.P1);
+                }
+                //-----------------------------
+                //1
+                if (t.EdgeIsConstrained[1])
+                {
+                    //(1 + 1) % 3 => 1;
+                    //(1 + 2) % 3 => 0;
+                    MarkConstrainedEdge(t.P1, t.P0);
+                }
+                //-----------------------------
+                //2
+                if (t.EdgeIsConstrained[2])
+                {
+                    //(2 + 1) % 3 => 0;
+                    //(2 + 2) % 3 => 1;
+                    MarkConstrainedEdge(t.P0, t.P1);
+                }
+            }
         }
 
         public void MarkConstrainedEdge(int index)
@@ -183,16 +385,16 @@ namespace Poly2Tri
 
         public double Area()
         {
-            double b = Points[0].X - Points[1].X;
-            double h = Points[2].Y - Points[1].Y;
+            double b = P0.X - P1.X;
+            double h = P2.Y - P1.Y;
 
             return Math.Abs((b * h * 0.5f));
         }
 
         public TriangulationPoint Centroid()
         {
-            double cx = (Points[0].X + Points[1].X + Points[2].X) / 3f;
-            double cy = (Points[0].Y + Points[1].Y + Points[2].Y) / 3f;
+            double cx = (P0.X + P1.X + P2.X) / 3f;
+            double cy = (P0.Y + P1.Y + P2.Y) / 3f;
             return new TriangulationPoint(cx, cy);
         }
 
@@ -202,8 +404,8 @@ namespace Poly2Tri
         /// <returns>index of the shared edge or -1 if edge isn't shared</returns>
         public int EdgeIndex(TriangulationPoint p1, TriangulationPoint p2)
         {
-            int i1 = Points.IndexOf(p1);
-            int i2 = Points.IndexOf(p2);
+            int i1 = InternalIndexOf(p1);// Points.IndexOf(p1);
+            int i2 = InternalIndexOf(p2);
 
             // Points of this triangle in the edge p1-p2
             bool a = (i1 == 0 || i2 == 0);
@@ -229,5 +431,7 @@ namespace Poly2Tri
         public void SetDelaunayEdgeCCW(TriangulationPoint p, bool ce) { EdgeIsDelaunay[(IndexOf(p) + 2) % 3] = ce; }
         public void SetDelaunayEdgeCW(TriangulationPoint p, bool ce) { EdgeIsDelaunay[(IndexOf(p) + 1) % 3] = ce; }
         public void SetDelaunayEdgeAcross(TriangulationPoint p, bool ce) { EdgeIsDelaunay[IndexOf(p)] = ce; }
+
+        
     }
 }
