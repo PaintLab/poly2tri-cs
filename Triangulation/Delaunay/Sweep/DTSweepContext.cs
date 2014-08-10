@@ -56,7 +56,7 @@ namespace Poly2Tri
         public double BasinWidth;
         public bool BasinLeftHighest;
         //----------------------------------
-         
+
         public DTSweepEdgeEvent EdgeEvent;
 
         public DTSweepContext()
@@ -284,7 +284,10 @@ namespace Poly2Tri
             DTSweepConstraintMaker.BuildConstraint(a, b);
         }
 
-        public override TriangulationAlgorithm Algorithm { get { return TriangulationAlgorithm.DTSweep; } }
+        public override TriangulationAlgorithm Algorithm
+        {
+            get { return TriangulationAlgorithm.DTSweep; }
+        }
 
 
 
