@@ -494,7 +494,10 @@ namespace Poly2Tri
         private static bool IsEdgeSideOfTriangle(DelaunayTriangle triangle, TriangulationPoint ep, TriangulationPoint eq)
         {
             int index = triangle.EdgeIndex(ep, eq);
-            if (index == -1) return false;
+            if (index == -1)
+            {
+                return false;
+            }
             triangle.MarkConstrainedEdge(index);
             switch (index)
             {
@@ -512,7 +515,7 @@ namespace Poly2Tri
                     } break;
             }
 
-            if (triangle != null) triangle.MarkConstrainedEdge(ep, eq);
+            if (triangle != null) triangle.SelectAndMarkConstrainedEdge(ep, eq);
             return true;
         }
 
@@ -631,8 +634,8 @@ namespace Poly2Tri
                         && ep == tcx.EdgeEvent.ConstrainedEdge.P)
                     {
                         if (tcx.IsDebugEnabled) Console.WriteLine("[FLIP] - constrained edge done"); // TODO: remove
-                        t.MarkConstrainedEdge(ep, eq);
-                        ot.MarkConstrainedEdge(ep, eq);
+                        t.SelectAndMarkConstrainedEdge(ep, eq);
+                        ot.SelectAndMarkConstrainedEdge(ep, eq);
                         Legalize(tcx, t);
                         Legalize(tcx, ot);
                     }
@@ -696,16 +699,18 @@ namespace Poly2Tri
             {
                 // ot is not crossing edge after flip
                 edgeIndex = ot.EdgeIndex(p, op);
-                ot.EdgeIsDelaunay[edgeIndex] = true;
+                //ot.EdgeIsDelaunay[edgeIndex] = true;
+                ot.MarkEdgeDelunay(edgeIndex, true);
                 Legalize(tcx, ot);
-                ot.EdgeIsDelaunay.Clear();
+                ot.ClearAllEdgeDelaunayMarks();
                 return t;
             }
             // t is not crossing edge after flip
             edgeIndex = t.EdgeIndex(p, op);
-            t.EdgeIsDelaunay[edgeIndex] = true;
+            //t.EdgeIsDelaunay[edgeIndex] = true;
+            t.MarkEdgeDelunay(edgeIndex, true);
             Legalize(tcx, t);
-            t.EdgeIsDelaunay.Clear();
+            t.ClearAllEdgeDelaunayMarks();
             return ot;
         }
 
@@ -965,7 +970,7 @@ namespace Poly2Tri
             {
                 // TODO: fix so that cEdge is always valid when creating new triangles then we can check it here
                 //       instead of below with ot
-                if (t.EdgeIsDelaunay[i]) continue;
+                if (t.EdgeIsDelaunay(i)) continue;
 
                 //DelaunayTriangle ot = t.Neighbors[i];
 
@@ -999,18 +1004,23 @@ namespace Poly2Tri
                 int oi = ot.IndexOf(op);
                 // If this is a Constrained Edge or a Delaunay Edge(only during recursive legalization)
                 // then we should not try to legalize
-                if (ot.EdgeIsConstrained[oi] || ot.EdgeIsDelaunay[oi])
+                //if (ot.EdgeIsConstrained[oi] || ot.EdgeIsDelaunay(oi))
+                if (ot.EdgeIsConstrained(oi) || ot.EdgeIsDelaunay(oi))
                 {
-                    t.EdgeIsConstrained[i] = ot.EdgeIsConstrained[oi]; // XXX: have no good way of setting this property when creating new triangles so lets set it here
+
+                    //t.EdgeIsConstrained[i] = ot.EdgeIsConstrained[oi];
+                    t.MarkEdgeConstraint(i, ot.EdgeIsConstrained(oi));
+                    // XXX: have no good way of setting this property when creating new triangles so lets set it here
                     continue;
                 }
 
                 if (!TriangulationUtil.SmartIncircle(p, t.PointCCWFrom(p), t.PointCWFrom(p), op)) continue;
 
                 // Lets mark this shared edge as Delaunay 
-                t.EdgeIsDelaunay[i] = true;
-                ot.EdgeIsDelaunay[oi] = true;
-
+                //t.EdgeIsDelaunay[i] = true;
+                //ot.EdgeIsDelaunay[oi] = true;
+                t.MarkEdgeDelunay(i, true);
+                ot.MarkEdgeDelunay(oi, true);
                 // Lets rotate shared edge one vertex CW to legalize it
                 RotateTrianglePair(t, p, ot, op);
 
@@ -1025,9 +1035,10 @@ namespace Poly2Tri
                 // until we add a new triangle or point.
                 // XXX: need to think about this. Can these edges be tried after we 
                 //      return to previous recursive level?
-                t.EdgeIsDelaunay[i] = false;
-                ot.EdgeIsDelaunay[oi] = false;
-
+                //t.EdgeIsDelaunay[i] = false;
+                //ot.EdgeIsDelaunay[oi] = false;
+                t.MarkEdgeDelunay(i, false);
+                ot.MarkEdgeDelunay(oi, false);
                 // If triangle have been legalized no need to check the other edges since
                 // the recursive legalization will handles those so we can end here.
                 return true;

@@ -98,17 +98,17 @@ namespace Poly2Tri
                 Triangulatable.AddTriangle(triangle);
 
                 //0
-                if (!triangle.EdgeIsConstrained[0])
+                if (!triangle.C0)
                 {
                     MeshCleanReq(triangle.N0);
                 }
                 //1
-                if (!triangle.EdgeIsConstrained[1])
+                if (!triangle.C1)
                 {
                     MeshCleanReq(triangle.N1);
                 }
                 //2
-                if (!triangle.EdgeIsConstrained[2])
+                if (!triangle.C2)
                 {
                     MeshCleanReq(triangle.N2);
                 }
