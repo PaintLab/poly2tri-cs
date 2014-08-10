@@ -239,7 +239,7 @@ namespace Poly2Tri
         /// </summary>
         private static AdvancingFrontNode PointEvent(DTSweepContext tcx, TriangulationPoint point)
         {
-            AdvancingFrontNode node, newNode; 
+            AdvancingFrontNode node, newNode;
             node = tcx.LocateNode(point);
 
             if (tcx.IsDebugEnabled)
@@ -290,8 +290,9 @@ namespace Poly2Tri
         {
             try
             {
-                tcx.EdgeEvent.ConstrainedEdge = edge;
-                tcx.EdgeEvent.Right = edge.P.X > edge.Q.X;
+                tcx.EdgeEvent = new DTSweepEdgeEvent(edge, edge.P.X > edge.Q.X); //
+                //.ConstrainedEdge = edge;
+                //tcx.EdgeEvent.Right = edge.P.X > edge.Q.X;
 
                 if (tcx.IsDebugEnabled) { tcx.DTDebugContext.PrimaryTriangle = node.Triangle; }
 
@@ -574,8 +575,7 @@ namespace Poly2Tri
                 FlipEdgeEvent(tcx, ep, eq, triangle, point);
             }
         }
-        static DTSweepConstraintMaker constraintBuilder = new DTSweepConstraintMaker();
-
+         
         /// <summary>
         /// In the case of a pointset with some constraint edges. If a triangle side is collinear
         /// with a part of the constraint we split the constraint into two constraints. This could

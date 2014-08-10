@@ -49,7 +49,7 @@ namespace Poly2Tri
         public TriangulationPoint Tail { get; set; }
 
         public DTSweepBasin Basin = new DTSweepBasin();
-        public DTSweepEdgeEvent EdgeEvent = new DTSweepEdgeEvent(); 
+        public DTSweepEdgeEvent EdgeEvent = new DTSweepEdgeEvent();
 
         public DTSweepContext()
         {
@@ -273,12 +273,12 @@ namespace Poly2Tri
         public override void MakeNewConstraint(TriangulationPoint a, TriangulationPoint b)
         {
             //new DTSweepConstraint(a, b);
-            constriantBuilder.BuildConstraint(a, b);
+            DTSweepConstraintMaker.BuildConstraint(a, b);
         }
 
         public override TriangulationAlgorithm Algorithm { get { return TriangulationAlgorithm.DTSweep; } }
 
 
-        static DTSweepConstraintMaker constriantBuilder = new DTSweepConstraintMaker();
+         
     }
 }

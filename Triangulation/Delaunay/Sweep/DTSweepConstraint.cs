@@ -45,17 +45,15 @@ namespace Poly2Tri
         public static readonly DTSweepConstraint Empty = new DTSweepConstraint();
 
     }
-    public class DTSweepConstraintMaker
+    public static class DTSweepConstraintMaker
     {
 
-        public DTSweepConstraintMaker()
-        {
-        }
+
         /// <summary>
         /// Give two points in any order. Will always be ordered so
         /// that q.y > p.y and q.x > p.x if same y value 
         /// </summary> 
-        public void BuildConstraint(TriangulationPoint p1, TriangulationPoint p2)
+        public static void BuildConstraint(TriangulationPoint p1, TriangulationPoint p2)
         {
             var P = p1;
             var Q = p2;
