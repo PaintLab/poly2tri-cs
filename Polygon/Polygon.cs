@@ -49,8 +49,8 @@ namespace Poly2Tri
     public sealed class Polygon : Triangulatable
     {
         TriangulationPoint[] _points;
-        List<TriangulationPoint> _steinerPoints;
-        List<Polygon> _holes;
+        //List<TriangulationPoint> _steinerPoints;
+        Polygon[] _holes;
         List<DelaunayTriangle> _triangles;
 
         /// <summary>
@@ -77,34 +77,38 @@ namespace Poly2Tri
         {
             //for clean clone
         }
-
-
         public Polygon CleanClone()
         {
+            //recursive
 
-            //clone ctor 
             Polygon newPolygon = new Polygon();
             var myPoints = this._points;
             int j = myPoints.Length;
-
             TriangulationPoint[] clonePoints = new TriangulationPoint[j];
             newPolygon._points = clonePoints;
-
             for (int i = j - 1; i >= 0; --i)
             {
                 var p = myPoints[i];
                 clonePoints[i] = new PolygonPoint(p.X, p.Y);
             }
+
             //-----------------------------------------------------------------
-            List<Polygon> myHoles = this._holes;
+            Polygon[] myHoles = this._holes;
             if (myHoles != null)
             {
-                j = myHoles.Count;
-                List<Polygon> cloneHoles = new List<Polygon>(j);
-                for (int i = 0; i < j; ++i)
+                j = myHoles.Length;
+                Polygon[] cloneHoles = new Polygon[j];
+                newPolygon._holes = cloneHoles;
+
+                for (int i = j - 1; i >= 0; --i)
                 {
-                    cloneHoles.Add(myHoles[i].CleanClone());
+                    cloneHoles[i] = myHoles[i].CleanClone();
                 }
+                
+                //for (int i = 0; i < j; ++i)
+                //{
+                //    cloneHoles.Add(myHoles[i].CleanClone());
+                //}
             }
             return newPolygon;
         }
@@ -120,22 +124,28 @@ namespace Poly2Tri
 
         public TriangulationMode TriangulationMode { get { return TriangulationMode.Polygon; } }
 
-        public void AddSteinerPoint(TriangulationPoint point)
-        {
-            if (_steinerPoints == null) _steinerPoints = new List<TriangulationPoint>();
-            _steinerPoints.Add(point);
-        }
+        //public void AddSteinerPoint(TriangulationPoint point)
+        //{
+        //    if (_steinerPoints == null)
+        //    {
+        //        _steinerPoints = new List<TriangulationPoint>();
+        //    }
+        //    _steinerPoints.Add(point);
+        //}
 
-        public void AddSteinerPoints(List<TriangulationPoint> points)
-        {
-            if (_steinerPoints == null) _steinerPoints = new List<TriangulationPoint>();
-            _steinerPoints.AddRange(points);
-        }
+        //public void AddSteinerPoints(List<TriangulationPoint> points)
+        //{
+        //    if (_steinerPoints == null)
+        //    {
+        //        _steinerPoints = new List<TriangulationPoint>();
+        //    }
+        //    _steinerPoints.AddRange(points);
+        //}
 
-        public void ClearSteinerPoints()
-        {
-            if (_steinerPoints != null) _steinerPoints.Clear();
-        }
+        //public void ClearSteinerPoints()
+        //{
+        //    if (_steinerPoints != null) _steinerPoints.Clear();
+        //}
 
         /// <summary>
         /// Add a hole to the polygon.
@@ -143,8 +153,18 @@ namespace Poly2Tri
         /// <param name="poly">A subtraction polygon fully contained inside this polygon.</param>
         public void AddHole(Polygon poly)
         {
-            if (_holes == null) _holes = new List<Polygon>();
-            _holes.Add(poly);
+            if (_holes == null)
+            {
+                _holes = new Polygon[] { poly };
+            }
+            else
+            {
+                int j = _holes.Length;
+                Polygon[] newHoles = new Polygon[j + 1];
+                Array.Copy(_holes, 0, newHoles, 0, j);
+                newHoles[j] = poly;
+                this._holes = newHoles;
+            }
             // XXX: tests could be made here to be sure it is fully inside
             //        addSubtraction( poly.getPoints() );
         }
@@ -279,10 +299,10 @@ namespace Poly2Tri
                 }
             }
 
-            if (_steinerPoints != null)
-            {
-                tcx.Points.AddRange(_steinerPoints);
-            }
+            //if (_steinerPoints != null)
+            //{
+            //    tcx.Points.AddRange(_steinerPoints);
+            //}
         }
 
     }

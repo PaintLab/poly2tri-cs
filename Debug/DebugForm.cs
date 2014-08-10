@@ -199,7 +199,7 @@ namespace Poly2Tri
                     {
                         foreach (var tri in Info.Polygon.Triangles)
                         {
-                            
+
                             fx.DrawPolygon(tripen, new PointF[]{
                                 f(tri.P0),
                                 f(tri.P1),
@@ -210,15 +210,19 @@ namespace Poly2Tri
                     }
 
                     if (Info.Polygon.Points != null)
-                    {
+                    {   
                         foreach (var poly in new[] { Info.Polygon }.Concat(Info.Polygon.Holes ?? new Polygon[] { }))
-                            for (int i = 0; i < poly.Points.Count; ++i)
+                        {
+                            var arrs = poly.Points.ToArray();
+                            int j = arrs.Length;
+                            for (int i = 0; i < j; ++i)
                             {
-                                var point = f(poly.Points[i]);
+                                var point = f(arrs[i]);
                                 float r = 2.0f;
                                 if (PointBounceIndex == i) r += 2 - 2 * bounce;
                                 fx.DrawEllipse(pointpen, point.X - r, point.Y - r, 2 * r, 2 * r);
                             }
+                        }
                     }
 
                     var poee = Info.LastTriangulationException as PointOnEdgeException;
