@@ -821,29 +821,29 @@ namespace Poly2Tri
         {
             if (TriangulationUtil.Orient2d(node.Point, node.Next.Point, node.Next.Next.Point) == Orientation.CCW)
             {
-                // tcx.basin.leftNode = node.next.next;
-                tcx.Basin.leftNode = node;
+                // tcx.BasinLeftNode = node.next.next;
+                tcx.BasinLeftNode = node;
             }
             else
             {
-                tcx.Basin.leftNode = node.Next;
+                tcx.BasinLeftNode = node.Next;
             }
 
             // Find the bottom and right node
-            tcx.Basin.bottomNode = tcx.Basin.leftNode;
-            while (tcx.Basin.bottomNode.HasNext && tcx.Basin.bottomNode.Point.Y >= tcx.Basin.bottomNode.Next.Point.Y) tcx.Basin.bottomNode = tcx.Basin.bottomNode.Next;
+            tcx.BasinBottomNode = tcx.BasinLeftNode;
+            while (tcx.BasinBottomNode.HasNext && tcx.BasinBottomNode.Point.Y >= tcx.BasinBottomNode.Next.Point.Y) tcx.BasinBottomNode = tcx.BasinBottomNode.Next;
 
-            if (tcx.Basin.bottomNode == tcx.Basin.leftNode) return; // No valid basin
+            if (tcx.BasinBottomNode == tcx.BasinLeftNode) return; // No valid basin
 
-            tcx.Basin.rightNode = tcx.Basin.bottomNode;
-            while (tcx.Basin.rightNode.HasNext && tcx.Basin.rightNode.Point.Y < tcx.Basin.rightNode.Next.Point.Y) tcx.Basin.rightNode = tcx.Basin.rightNode.Next;
+            tcx.BasinRightNode = tcx.BasinBottomNode;
+            while (tcx.BasinRightNode.HasNext && tcx.BasinRightNode.Point.Y < tcx.BasinRightNode.Next.Point.Y) tcx.BasinRightNode = tcx.BasinRightNode.Next;
 
-            if (tcx.Basin.rightNode == tcx.Basin.bottomNode) return; // No valid basins
+            if (tcx.BasinRightNode == tcx.BasinBottomNode) return; // No valid basins
 
-            tcx.Basin.width = tcx.Basin.rightNode.Point.X - tcx.Basin.leftNode.Point.X;
-            tcx.Basin.leftHighest = tcx.Basin.leftNode.Point.Y > tcx.Basin.rightNode.Point.Y;
+            tcx.BasinWidth = tcx.BasinRightNode.Point.X - tcx.BasinLeftNode.Point.X;
+            tcx.BasinLeftHighest = tcx.BasinLeftNode.Point.Y > tcx.BasinRightNode.Point.Y;
 
-            FillBasinReq(tcx, tcx.Basin.bottomNode);
+            FillBasinReq(tcx, tcx.BasinBottomNode);
         }
 
         /// <summary>
@@ -854,17 +854,17 @@ namespace Poly2Tri
             if (IsShallow(tcx, node)) return; // if shallow stop filling
 
             Fill(tcx, node);
-            if (node.Prev == tcx.Basin.leftNode && node.Next == tcx.Basin.rightNode)
+            if (node.Prev == tcx.BasinLeftNode && node.Next == tcx.BasinRightNode)
             {
                 return;
             }
-            else if (node.Prev == tcx.Basin.leftNode)
+            else if (node.Prev == tcx.BasinLeftNode)
             {
                 Orientation o = TriangulationUtil.Orient2d(node.Point, node.Next.Point, node.Next.Next.Point);
                 if (o == Orientation.CW) return;
                 node = node.Next;
             }
-            else if (node.Next == tcx.Basin.rightNode)
+            else if (node.Next == tcx.BasinRightNode)
             {
                 Orientation o = TriangulationUtil.Orient2d(node.Point, node.Prev.Point, node.Prev.Prev.Point);
                 if (o == Orientation.CCW) return;
@@ -889,15 +889,15 @@ namespace Poly2Tri
         {
             double height;
 
-            if (tcx.Basin.leftHighest)
+            if (tcx.BasinLeftHighest)
             {
-                height = tcx.Basin.leftNode.Point.Y - node.Point.Y;
+                height = tcx.BasinLeftNode.Point.Y - node.Point.Y;
             }
             else
             {
-                height = tcx.Basin.rightNode.Point.Y - node.Point.Y;
+                height = tcx.BasinRightNode.Point.Y - node.Point.Y;
             }
-            if (tcx.Basin.width > height)
+            if (tcx.BasinWidth > height)
             {
                 return true;
             }

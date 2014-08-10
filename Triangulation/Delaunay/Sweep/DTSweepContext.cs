@@ -48,8 +48,16 @@ namespace Poly2Tri
         public TriangulationPoint Head { get; set; }
         public TriangulationPoint Tail { get; set; }
 
-        public DTSweepBasin Basin = new DTSweepBasin();
-        public DTSweepEdgeEvent EdgeEvent = new DTSweepEdgeEvent();
+        //----------------------------------
+        //basin
+        public AdvancingFrontNode BasinLeftNode;
+        public AdvancingFrontNode BasinBottomNode;
+        public AdvancingFrontNode BasinRightNode;
+        public double BasinWidth;
+        public bool BasinLeftHighest;
+        //----------------------------------
+         
+        public DTSweepEdgeEvent EdgeEvent;
 
         public DTSweepContext()
         {
@@ -279,6 +287,6 @@ namespace Poly2Tri
         public override TriangulationAlgorithm Algorithm { get { return TriangulationAlgorithm.DTSweep; } }
 
 
-         
+
     }
 }
