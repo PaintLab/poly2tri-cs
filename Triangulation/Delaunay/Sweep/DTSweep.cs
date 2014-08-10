@@ -275,9 +275,12 @@ namespace Poly2Tri
 
             // Only need to check +epsilon since point never have smaller 
             // x value than node due to how we fetch nodes from the front
-            if (point.X <= node.Point.X + TriangulationUtil.EPSILON) Fill(tcx, node);
+            if (point.X <= node.Point.X + TriangulationUtil.EPSILON)
+            {
+                Fill(tcx, node);
+            }
 
-            tcx.AddNode(newNode);
+           //tcx.AddNode(newNode);
 
             FillAdvancingFront(tcx, newNode);
             return newNode;
@@ -301,7 +304,7 @@ namespace Poly2Tri
             node.Next.Prev = newNode;
             node.Next = newNode;
 
-            tcx.AddNode(newNode); // XXX: BST
+            //tcx.AddNode(newNode); // XXX: BST
 
             if (tcx.IsDebugEnabled) tcx.DTDebugContext.ActiveNode = newNode;
 
@@ -550,7 +553,7 @@ namespace Poly2Tri
                 default:
                     //may be -1 
                     return false;
-            }             
+            }
         }
 
         private static void EdgeEvent(DTSweepContext tcx, TriangulationPoint ep, TriangulationPoint eq, DelaunayTriangle triangle, TriangulationPoint point)
@@ -986,7 +989,7 @@ namespace Poly2Tri
             // Update the advancing front
             node.Prev.Next = node.Next;
             node.Next.Prev = node.Prev;
-            tcx.RemoveNode(node);
+           // tcx.RemoveNode(node);
 
             // If it was legalized the triangle has already been mapped
             if (!Legalize(tcx, triangle)) tcx.MapTriangleToNodes(triangle);

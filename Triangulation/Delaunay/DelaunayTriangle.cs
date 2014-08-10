@@ -68,7 +68,6 @@ namespace Poly2Tri
         public bool IsInterior { get; set; }
         public DelaunayTriangle(TriangulationPoint p1, TriangulationPoint p2, TriangulationPoint p3)
         {
-
             this.P0 = p1;
             this.P1 = p2;
             this.P2 = p3;
@@ -92,7 +91,7 @@ namespace Poly2Tri
             //if (i == -1) throw new Exception("Calling index with a point that doesn't exist in triangle");
             //return i;
         }
-        int InternalIndexOf(TriangulationPoint p)
+        int FindIndexOf(TriangulationPoint p)
         {
 
             if (P0 == p) return 0;
@@ -218,7 +217,7 @@ namespace Poly2Tri
 
         public bool Contains(TriangulationPoint p)
         {
-            return InternalIndexOf(p) >= 0;
+            return FindIndexOf(p) >= 0;
         }
 
         /// <summary>
@@ -314,7 +313,7 @@ namespace Poly2Tri
         public DelaunayTriangle NeighborAcrossFrom(TriangulationPoint point)
         {
             // return Neighbors[InternalIndexOf(point)];
-            switch (InternalIndexOf(point))
+            switch (FindIndexOf(point))
             {
                 case 0:
                     return N0;
@@ -327,53 +326,43 @@ namespace Poly2Tri
 
         public TriangulationPoint PointCCWFrom(TriangulationPoint point)
         {
-            switch ((InternalIndexOf(point) + 1) % 3)
+            //return Points[(IndexOf(point) + 1) % 3];
+
+            switch ((FindIndexOf(point) + 1) % 3)
             {
                 case 0:
-                    {
-                        return this.P0;
-                    }
+                    return this.P0;
                 case 1:
-                    {
-                        return this.P1;
-                    }
+                    return this.P1;
                 case 2:
                 default:
-                    {
-                        return this.P2;
-                    }
+                    return this.P2;
             }
-            //return Points[(IndexOf(point) + 1) % 3];
+
         }
         public TriangulationPoint PointCWFrom(TriangulationPoint point)
         {
             //return Points[(IndexOf(point) + 2) % 3];
 
-            switch ((InternalIndexOf(point) + 2) % 3)
+            switch ((FindIndexOf(point) + 2) % 3)
             {
                 case 0:
-                    {
-                        return this.P0;
-                    }
+                    return this.P0;
                 case 1:
-                    {
-                        return this.P1;
-                    }
+                    return this.P1;
                 case 2:
                 default:
-                    {
-                        return this.P2;
-                    }
+                    return this.P2;
             }
 
         }
 
         private void RotateCW()
         {
-            var t = P2;
+            var temp = P2;
             P2 = P1;
             P1 = P0;
-            P0 = t;
+            P0 = temp;
         }
 
         /// <summary>
@@ -522,16 +511,14 @@ namespace Poly2Tri
         /// Mark edge as constrained
         /// </summary>
         public void SelectAndMarkConstrainedEdge(TriangulationPoint p, TriangulationPoint q)
-        {  
-            MarkEdgeConstraint(EdgeIndex(p, q), true);
-
+        {
+            MarkEdgeConstraint(EdgeIndex(p, q), true); 
         }
 
         public double Area()
         {
             double b = P0.X - P1.X;
-            double h = P2.Y - P1.Y;
-
+            double h = P2.Y - P1.Y; 
             return Math.Abs((b * h * 0.5f));
         }
 
@@ -548,8 +535,8 @@ namespace Poly2Tri
         /// <returns>index of the shared edge or -1 if edge isn't shared</returns>
         public int EdgeIndex(TriangulationPoint p1, TriangulationPoint p2)
         {
-            int i1 = InternalIndexOf(p1); 
-            int i2 = InternalIndexOf(p2);
+            int i1 = FindIndexOf(p1);
+            int i2 = FindIndexOf(p2);
 
             // Points of this triangle in the edge p1-p2
             bool a = (i1 == 0 || i2 == 0);

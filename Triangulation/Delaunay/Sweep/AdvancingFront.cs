@@ -96,11 +96,11 @@ namespace Poly2Tri
         private AdvancingFrontNode LocateNode(double x)
         {
             AdvancingFrontNode node = this._search;// FindSearchNode(x);
-            if (x < node.Value)
+            if (x < node.XValue)
             {
                 while ((node = node.Prev) != null)
                 {
-                    if (x >= node.Value)
+                    if (x >= node.XValue)
                     {
                         this._search = node;
                         return node;
@@ -111,7 +111,7 @@ namespace Poly2Tri
             {
                 while ((node = node.Next) != null)
                 {
-                    if (x < node.Value)
+                    if (x < node.XValue)
                     {
                         this._search = node.Prev;
                         return node.Prev;
@@ -151,11 +151,17 @@ namespace Poly2Tri
             }
             else if (px < nx)
             {
-                while ((node = node.Prev) != null) if (point == node.Point) break;
+                while ((node = node.Prev) != null)
+                {
+                    if (point == node.Point) { break; }
+                }
             }
             else
             {
-                while ((node = node.Next) != null) if (point == node.Point) break;
+                while ((node = node.Next) != null)
+                {
+                    if (point == node.Point) { break; }
+                }
             }
             this._search = node;
             return node;

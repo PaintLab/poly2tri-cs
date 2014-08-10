@@ -60,8 +60,8 @@ namespace Poly2Tri
         public DTSweepEdgeEvent EdgeEvent;
 
         public DTSweepContext()
-        { 
-        } 
+        {
+        }
         //public   bool IsDebugEnabled
         //{
         //    get
@@ -132,22 +132,22 @@ namespace Poly2Tri
         public override void Clear()
         {
             base.Clear();
-            Triangles.Clear();
+            
         }
 
-        public void AddNode(AdvancingFrontNode node)
-        {
-            //        Console.WriteLine( "add:" + node.key + ":" + System.identityHashCode(node.key));
-            //        m_nodeTree.put( node.getKey(), node );
-            //Front.AddNode(node);
-        }
+        //public void AddNode(AdvancingFrontNode node)
+        //{
+        //    //        Console.WriteLine( "add:" + node.key + ":" + System.identityHashCode(node.key));
+        //    //        m_nodeTree.put( node.getKey(), node );
+        //    //Front.AddNode(node);
+        //}
 
-        public void RemoveNode(AdvancingFrontNode node)
-        {
-            //        Console.WriteLine( "remove:" + node.key + ":" + System.identityHashCode(node.key));
-            //        m_nodeTree.delete( node.getKey() );
-            // Front.RemoveNode(node);
-        }
+        //public void RemoveNode(AdvancingFrontNode node)
+        //{
+        //    //        Console.WriteLine( "remove:" + node.key + ":" + System.identityHashCode(node.key));
+        //    //        m_nodeTree.delete( node.getKey() );
+        //    // Front.RemoveNode(node);
+        //}
 
         public AdvancingFrontNode LocateNode(TriangulationPoint point)
         {
@@ -157,15 +157,17 @@ namespace Poly2Tri
         public void CreateAdvancingFront()
         {
             AdvancingFrontNode head, tail, middle;
+            
             // Initial triangle
-            DelaunayTriangle iTriangle = new DelaunayTriangle(Points[0], Tail, Head);
-            Triangles.Add(iTriangle);
+            DelaunayTriangle dtri = new DelaunayTriangle(Points[0], Tail, Head);            
+            Triangles.Add(dtri);
+            head = new AdvancingFrontNode(dtri.P1);
+            head.Triangle = dtri;
 
-            head = new AdvancingFrontNode(iTriangle.P1);
-            head.Triangle = iTriangle;
-            middle = new AdvancingFrontNode(iTriangle.P0);
-            middle.Triangle = iTriangle;
-            tail = new AdvancingFrontNode(iTriangle.P2);
+            middle = new AdvancingFrontNode(dtri.P0);
+            middle.Triangle = dtri;
+
+            tail = new AdvancingFrontNode(dtri.P2);
 
             Front = new AdvancingFront(head, tail);
             //Front.AddNode(middle);
@@ -198,17 +200,26 @@ namespace Poly2Tri
             if (t.N0 == null)
             {
                 AdvancingFrontNode n = Front.LocatePoint(t.PointCWFrom(t.P0));
-                if (n != null) n.Triangle = t;
+                if (n != null)
+                {
+                    n.Triangle = t;
+                }
             }
             if (t.N1 == null)
             {
                 AdvancingFrontNode n = Front.LocatePoint(t.PointCWFrom(t.P1));
-                if (n != null) n.Triangle = t;
+                if (n != null)
+                {
+                    n.Triangle = t;
+                }
             }
             if (t.N2 == null)
             {
                 AdvancingFrontNode n = Front.LocatePoint(t.PointCWFrom(t.P2));
-                if (n != null) n.Triangle = t;
+                if (n != null)
+                {
+                    n.Triangle = t;
+                }
             }
 
         }
