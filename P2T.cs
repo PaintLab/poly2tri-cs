@@ -35,16 +35,16 @@ namespace Poly2Tri
     {
         private static TriangulationAlgorithm _defaultAlgorithm = TriangulationAlgorithm.DTSweep;
 
-        public static void Triangulate(PolygonSet ps)
-        {
-            TriangulationContext tcx = CreateContext(_defaultAlgorithm);
-            foreach (Polygon p in ps.Polygons)
-            {
-                tcx.PrepareTriangulation(p);
-                Triangulate(tcx);
-                tcx.Clear();
-            }
-        }
+        //public static void Triangulate(PolygonSet ps)
+        //{
+        //    TriangulationContext tcx = CreateContext(_defaultAlgorithm);
+        //    foreach (Polygon p in ps.Polygons)
+        //    {
+        //        tcx.PrepareTriangulation(p);
+        //        Triangulate(tcx);
+        //        tcx.Clear();
+        //    }
+        //}
 
         public static void Triangulate(Polygon p)
         {
