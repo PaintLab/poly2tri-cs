@@ -550,6 +550,7 @@ namespace Poly2Tri
                 FlipEdgeEvent(tcx, ep, eq, triangle, point);
             }
         }
+        static DTSweepConstraintMaker constraintBuilder = new DTSweepConstraintMaker();
 
         /// <summary>
         /// In the case of a pointset with some constraint edges. If a triangle side is collinear
@@ -565,20 +566,21 @@ namespace Poly2Tri
         /// <param name="ep"></param>
         /// <param name="eq"></param>
         /// <param name="p">point on the edge between ep->eq</param>
-        private static void SplitEdge(TriangulationPoint ep, TriangulationPoint eq, TriangulationPoint p)
-        {
+        //private static void SplitEdge(TriangulationPoint ep, TriangulationPoint eq, TriangulationPoint p)
+        //{
 
-            //DTSweepConstraint edge = eq.Edges.First(e => e.Q == ep || e.P == ep);
-            //DTSweepConstraint edge = FindFirst(eq.Edges, ep);//.First(e => e.Q == ep || e.P == ep);
-            DTSweepConstraint edge = eq.FindFirst(ep);
-            edge.P = p;
-            new DTSweepConstraint(ep, p); // Et tu, Brute? --MM
+        //    //DTSweepConstraint edge = eq.Edges.First(e => e.Q == ep || e.P == ep);
+        //    //DTSweepConstraint edge = FindFirst(eq.Edges, ep);//.First(e => e.Q == ep || e.P == ep);
+        //    DTSweepConstraint edge = eq.FindFirst(ep);
+        //    edge.P = p;
+        //    constraintBuilder.BuildConstraint(ep, p);// Et tu, Brute? --MM
+         
 
-            //        // Redo this edge now that we have split the constraint
-            //          newEdgeEvent( tcx, edge, triangle, point );
-            //          // Continue with new edge
-            //          newEdgeEvent( tcx, edge, triangle, p2 );
-        }
+        //    //        // Redo this edge now that we have split the constraint
+        //    //          newEdgeEvent( tcx, edge, triangle, point );
+        //    //          // Continue with new edge
+        //    //          newEdgeEvent( tcx, edge, triangle, p2 );
+        //}
 
         private static void FlipEdgeEvent(DTSweepContext tcx, TriangulationPoint ep, TriangulationPoint eq, DelaunayTriangle t, TriangulationPoint p)
         {

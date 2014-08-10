@@ -50,7 +50,7 @@ namespace Poly2Tri {
 			SecondaryTriangle = null;
 			ActivePoint       = null;
 			ActiveNode        = null;
-			ActiveConstraint  = null;
+            ActiveConstraint = DTSweepConstraint.Empty;
 		}
 
 		private DelaunayTriangle _primaryTriangle;

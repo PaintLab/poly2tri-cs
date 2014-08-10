@@ -54,7 +54,7 @@ namespace Poly2Tri {
 			base.Prepare(tcx);
 			for (int i = 0; i < EdgeIndex.Length; i += 2) {
 				// XXX: must change!!
-				tcx.NewConstraint(Points[EdgeIndex[i]], Points[EdgeIndex[i + 1]]);
+				tcx.MakeNewConstraint(Points[EdgeIndex[i]], Points[EdgeIndex[i + 1]]);
 			}
 		}
 	}

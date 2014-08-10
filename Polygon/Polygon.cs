@@ -237,10 +237,10 @@ namespace Poly2Tri
             // Outer constraints
             for (int i = 0; i < _points.Count - 1; i++)
             {
-                tcx.NewConstraint(_points[i], _points[i + 1]);
+                tcx.MakeNewConstraint(_points[i], _points[i + 1]);
             }
 
-            tcx.NewConstraint(_points[0], _points[_points.Count - 1]);
+            tcx.MakeNewConstraint(_points[0], _points[_points.Count - 1]);
             tcx.Points.AddRange(_points);
 
             // Hole constraints
@@ -250,10 +250,10 @@ namespace Poly2Tri
                 {
                     for (int i = 0; i < p._points.Count - 1; i++)
                     {
-                        tcx.NewConstraint(p._points[i], p._points[i + 1]);
+                        tcx.MakeNewConstraint(p._points[i], p._points[i + 1]);
                     }
 
-                    tcx.NewConstraint(p._points[0], p._points[p._points.Count - 1]);
+                    tcx.MakeNewConstraint(p._points[0], p._points[p._points.Count - 1]);
                     tcx.Points.AddRange(p._points);
                 }
             }

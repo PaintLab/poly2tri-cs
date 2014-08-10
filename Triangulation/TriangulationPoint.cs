@@ -65,19 +65,19 @@ namespace Poly2Tri
             myEdges.Add(e);
         }
 
-        public DTSweepConstraint FindFirst(TriangulationPoint eq)
-        {
-            int j = myEdges.Count;
-            for (int i = 0; i < j; ++i)
-            {
-                var e = myEdges[i];
-                if (e.Q == eq || e.P == eq)
-                {
-                    return e;
-                }
-            }
-            return null;
-        }
+        //public DTSweepConstraint FindFirst(TriangulationPoint eq)
+        //{
+        //    int j = myEdges.Count;
+        //    for (int i = 0; i < j; ++i)
+        //    {
+        //        var e = myEdges[i];
+        //        if (e.Q == eq || e.P == eq)
+        //        {
+        //            return e;
+        //        }
+        //    }
+        //    return null;
+        //}
 
         public IEnumerable<DTSweepConstraint> GetEdgeIter()
         {

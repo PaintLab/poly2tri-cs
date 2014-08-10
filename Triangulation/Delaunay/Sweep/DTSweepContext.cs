@@ -210,11 +210,15 @@ namespace Poly2Tri
             Triangles.Clear();
         }
 
-        public override TriangulationConstraint NewConstraint(TriangulationPoint a, TriangulationPoint b)
+        public override void MakeNewConstraint(TriangulationPoint a, TriangulationPoint b)
         {
-            return new DTSweepConstraint(a, b);
+            //new DTSweepConstraint(a, b);
+            constriantBuilder.BuildConstraint(a, b);
         }
 
         public override TriangulationAlgorithm Algorithm { get { return TriangulationAlgorithm.DTSweep; } }
+
+
+        static DTSweepConstraintMaker constriantBuilder = new DTSweepConstraintMaker();
     }
 }
