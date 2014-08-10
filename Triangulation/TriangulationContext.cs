@@ -37,20 +37,18 @@ namespace Poly2Tri
     public abstract class TriangulationContext
     {
 
-
-
         public readonly List<DelaunayTriangle> Triangles = new List<DelaunayTriangle>();
-        public readonly List<TriangulationPoint> Points = new List<TriangulationPoint>(200);
-
+        public readonly List<TriangulationPoint> Points = new List<TriangulationPoint>(200); 
+        internal TriangulationContext()
+        {
+        }
         public TriangulationMode TriangulationMode { get; protected set; }
         public Triangulatable Triangulatable { get; private set; }
-
-
 
         public abstract TriangulationAlgorithm Algorithm { get; }
 
         public virtual void PrepareTriangulation(Triangulatable t)
-        {   
+        {
             Triangulatable = t;
             TriangulationMode = t.TriangulationMode;
             t.Prepare(this);
@@ -63,9 +61,10 @@ namespace Poly2Tri
 
         public virtual void Clear()
         {
-            Points.Clear();
+            this.Points.Clear();
+            this.Triangles.Clear();
 
-            if (DebugContext != null) { DebugContext.Clear(); } 
+            if (DebugContext != null) { DebugContext.Clear(); }
 #if DEBUG
             dbugStepCount = 0;
 #endif

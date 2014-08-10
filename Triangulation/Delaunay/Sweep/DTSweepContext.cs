@@ -60,10 +60,8 @@ namespace Poly2Tri
         public DTSweepEdgeEvent EdgeEvent;
 
         public DTSweepContext()
-        {
-            Clear();
-        }
-
+        { 
+        } 
         public override bool IsDebugEnabled
         {
             get
@@ -72,7 +70,10 @@ namespace Poly2Tri
             }
             protected set
             {
-                if (value && DebugContext == null) DebugContext = new DTSweepDebugContext(this);
+                if (value && DebugContext == null)
+                {
+                    DebugContext = new DTSweepDebugContext(this);
+                }
                 base.IsDebugEnabled = value;
             }
         }
@@ -138,14 +139,14 @@ namespace Poly2Tri
         {
             //        Console.WriteLine( "add:" + node.key + ":" + System.identityHashCode(node.key));
             //        m_nodeTree.put( node.getKey(), node );
-            Front.AddNode(node);
+            //Front.AddNode(node);
         }
 
         public void RemoveNode(AdvancingFrontNode node)
         {
             //        Console.WriteLine( "remove:" + node.key + ":" + System.identityHashCode(node.key));
             //        m_nodeTree.delete( node.getKey() );
-            Front.RemoveNode(node);
+            // Front.RemoveNode(node);
         }
 
         public AdvancingFrontNode LocateNode(TriangulationPoint point)
@@ -167,7 +168,7 @@ namespace Poly2Tri
             tail = new AdvancingFrontNode(iTriangle.P2);
 
             Front = new AdvancingFront(head, tail);
-            Front.AddNode(middle);
+            //Front.AddNode(middle);
 
             // TODO: I think it would be more intuitive if head is middles next and not previous
             //so swap head and tail

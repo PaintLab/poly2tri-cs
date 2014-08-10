@@ -45,21 +45,23 @@ namespace Poly2Tri
      */
     public class AdvancingFront
     {
-        public AdvancingFrontNode Head;
-        public AdvancingFrontNode Tail;
-        AdvancingFrontNode Search;
+        public readonly AdvancingFrontNode Head;
+        public readonly AdvancingFrontNode Tail;
+
+        AdvancingFrontNode _search;
 
         public AdvancingFront(AdvancingFrontNode head, AdvancingFrontNode tail)
         {
             this.Head = head;
             this.Tail = tail;
-            this.Search = head;
-            AddNode(head);
-            AddNode(tail);
+            //start search at head front node
+            this._search = head;
+            //AddNode(head);
+            //AddNode(tail);
         }
 
-        public void AddNode(AdvancingFrontNode node) { }
-        public void RemoveNode(AdvancingFrontNode node) { }
+        //public void AddNode(AdvancingFrontNode node) { }
+        //public void RemoveNode(AdvancingFrontNode node) { }
 
         public override string ToString()
         {
@@ -74,14 +76,14 @@ namespace Poly2Tri
             return sb.ToString();
         }
 
-        /// <summary>
-        /// MM:  This seems to be used by LocateNode to guess a position in the implicit linked list of AdvancingFrontNodes near x
-        ///      Removed an overload that depended on this being exact
-        /// </summary>
-        private AdvancingFrontNode FindSearchNode(double x)
-        {
-            return Search;
-        }
+        ///// <summary>
+        ///// MM:  This seems to be used by LocateNode to guess a position in the implicit linked list of AdvancingFrontNodes near x
+        /////      Removed an overload that depended on this being exact
+        ///// </summary>
+        //private AdvancingFrontNode FindSearchNode(double x)
+        //{
+        //    return Search;
+        //}
 
         /// <summary>
         /// We use a balancing tree to locate a node smaller or equal to given key value (in theory)
@@ -93,14 +95,14 @@ namespace Poly2Tri
 
         private AdvancingFrontNode LocateNode(double x)
         {
-            AdvancingFrontNode node = FindSearchNode(x);
+            AdvancingFrontNode node = this._search;// FindSearchNode(x);
             if (x < node.Value)
             {
                 while ((node = node.Prev) != null)
                 {
                     if (x >= node.Value)
                     {
-                        Search = node;
+                        this._search = node;
                         return node;
                     }
                 }
@@ -111,7 +113,7 @@ namespace Poly2Tri
                 {
                     if (x < node.Value)
                     {
-                        Search = node.Prev;
+                        this._search = node.Prev;
                         return node.Prev;
                     }
                 }
@@ -125,7 +127,7 @@ namespace Poly2Tri
         public AdvancingFrontNode LocatePoint(TriangulationPoint point)
         {
             double px = point.X;
-            AdvancingFrontNode node = FindSearchNode(px);
+            AdvancingFrontNode node = this._search;// FindSearchNode(px);
             double nx = node.Point.X;
 
             if (px == nx)
@@ -155,7 +157,7 @@ namespace Poly2Tri
             {
                 while ((node = node.Next) != null) if (point == node.Point) break;
             }
-            Search = node;
+            this._search = node;
             return node;
         }
     }

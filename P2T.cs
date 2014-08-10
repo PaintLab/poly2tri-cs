@@ -61,24 +61,43 @@ namespace Poly2Tri
             Triangulate(_defaultAlgorithm, ps);
         }
 
-        public static TriangulationContext CreateContext(TriangulationAlgorithm algorithm)
+        //static DTSweepContext context = new DTSweepContext();
+        
+        static System.Collections.Generic.Stack<DTSweepContext> contextStacks = new System.Collections.Generic.Stack<DTSweepContext>();
+
+        static TriangulationContext GetFreeTcxContext(TriangulationAlgorithm algorithm)
         {
             switch (algorithm)
             {
                 case TriangulationAlgorithm.DTSweep:
                 default:
-                    return new DTSweepContext();
+                    //return context;
+                    if (contextStacks.Count == 0)
+                    {
+                        return new DTSweepContext();
+                    }
+                    else
+                    {
+                        return contextStacks.Pop();
+                    }
             }
         }
-
+        static void ReleaseCtxContext(TriangulationContext sweepContext)
+        {
+            var dtSweepContext = sweepContext as DTSweepContext;
+            if (dtSweepContext != null)
+            {
+                contextStacks.Push(dtSweepContext);
+            }
+        }
         public static void Triangulate(TriangulationAlgorithm algorithm, Triangulatable t)
         {
-            TriangulationContext tcx;
-
             //long time = System.nanoTime();
-            tcx = CreateContext(algorithm);
+            TriangulationContext tcx = GetFreeTcxContext(algorithm);
+            tcx.Clear();
             tcx.PrepareTriangulation(t);
             Triangulate(tcx);
+            ReleaseCtxContext(tcx);
             //logger.info( "Triangulation of {} points [{}ms]", tcx.getPoints().size(), ( System.nanoTime() - time ) / 1e6 );
         }
         public static void Triangulate(TriangulationContext tcx)
