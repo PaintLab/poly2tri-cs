@@ -108,17 +108,7 @@ namespace Poly2Tri
             //if (i == -1) throw new Exception("Calling index with a point that doesn't exist in triangle");
             //return i;
         }
-        public int IndexOf2(TriangulationPoint p)
-        {
-            if (P0 == p) return 0;
-            if (P1 == p) return 1;
-            if (P2 == p) return 2;
-            //if (TriangulationPoint.IsEqualPointCoord(P0, p)) return 0;
-            //if (TriangulationPoint.IsEqualPointCoord(P1, p)) return 1;
-            //if (TriangulationPoint.IsEqualPointCoord(P2, p)) return 2;
 
-            return -1;
-        }
         public bool ContainsPoint(TriangulationPoint p)
         {
             if (P0 == p) return true;
@@ -229,10 +219,8 @@ namespace Poly2Tri
         private void MarkNeighbor(TriangulationPoint p1, TriangulationPoint p2, DelaunayTriangle t)
         {
             //int i =;
-            //if (i == -1) throw new Exception("Error marking neighbors -- t doesn't contain edge p1-p2!");
-
-
-            switch (EdgeIndex(p1, p2))
+            //if (i == -1) throw new Exception("Error marking neighbors -- t doesn't contain edge p1-p2!"); 
+            switch (FindEdgeIndex(p1, p2))
             {
                 case 0:
                     {
@@ -247,9 +235,7 @@ namespace Poly2Tri
                         this.N2 = t;
                     } break;
                 default:
-                    {   //may be -1
-
-
+                    {   //may be -1 
                         throw new Exception("Error marking neighbors -- t doesn't contain edge p1-p2!");
                     }
             }
@@ -266,9 +252,21 @@ namespace Poly2Tri
         public void MarkNeighbor(DelaunayTriangle t)
         {
             // Points of this triangle also belonging to t
-            bool a = t.Contains(P0);
-            bool b = t.Contains(P1);
-            bool c = t.Contains(P2);
+
+            //-------------------------
+            //use temp name technique 2 ***
+            //1. clear points of t 
+            P0.tempName = P1.tempName = P2.tempName = 0;
+            //2. assign tempName for t
+            t.P0.tempName = t.P1.tempName = t.P2.tempName = 1;
+
+            bool a = P0.tempName != 0; //t.Contains(P0);
+            bool b = P1.tempName != 0; //t.Contains(P1);
+            bool c = P2.tempName != 0;//t.Contains(P2);  
+
+            //bool a = t.Contains(P0);
+            //bool b = t.Contains(P1);
+            //bool c = t.Contains(P2);  
 
             if (b && c) { N0 = t; t.MarkNeighbor(P1, P2, this); }
             else if (a && c) { N1 = t; t.MarkNeighbor(P0, P2, this); }
@@ -433,7 +431,7 @@ namespace Poly2Tri
                         //after rotate cw , previousOPointIndex of oPoint 
                         // from 0 => 1;
                         newOPointIndex = 1;
-                        // (IndexOf(1) + 1) % 3; =>1
+                        // (IndexOf(1) + 1) % 3; =>2
                         // 2%3 = 2                        
                         P2 = nPoint;
                     } break;
@@ -453,7 +451,7 @@ namespace Poly2Tri
                         //after rotate cw , previousOPointIndex  of 
                         //oPoint  2 => 0;
                         newOPointIndex = 0;
-                        //return (IndexOf(0) + 1) % 3;==>2
+                        //return (IndexOf(0) + 1) % 3;==>1
                         //1%3 = 1; 
                         P1 = nPoint;
                     } break;
@@ -579,7 +577,7 @@ namespace Poly2Tri
         /// </summary>
         public void SelectAndMarkConstrainedEdge(TriangulationPoint p, TriangulationPoint q)
         {
-            MarkEdgeConstraint(EdgeIndex(p, q), true);
+            MarkEdgeConstraint(FindEdgeIndex(p, q), true);
         }
 
         public double Area()
@@ -600,36 +598,120 @@ namespace Poly2Tri
         /// Get the index of the neighbor that shares this edge (or -1 if it isn't shared)
         /// </summary>
         /// <returns>index of the shared edge or -1 if edge isn't shared</returns>
-        public int EdgeIndex(TriangulationPoint p1, TriangulationPoint p2)
+        public int FindEdgeIndex(TriangulationPoint p1, TriangulationPoint p2)
         {
-            int i1 = FindIndexOf(p1);
-            int i2 = FindIndexOf(p2);
 
-            // Points of this triangle in the edge p1-p2
+            //temporary naming 3 points
+            //-----------------------------
+            //temp num technique , don't use with recursive
+            //1.clear unknown point
+            p1.tempName = p2.tempName = 3;
+            //2. just name  my points
+            P0.tempName = 0; //a as 1
+            P1.tempName = 1; //b as 2
+            P2.tempName = 2; //c as 3
+            //----------------------------- 
+            //3. check 
+            //int i1 = p1.tempName; //lower 2 bits (01b,10b,11b) //binary
+            //int i2 = p2.tempName << 2; //next upper 2 bits (01|00b,10|00b,11|00b) 
+            ////then switch pattern
+            //switch (i1 | i2)
+            //{
+
+            //    case (1 | (
+            //        {
+            //        } break;
+
+            //}
+            int i1 = p1.tempName;
+            int i2 = p2.tempName;
+
             bool a = (i1 == 0 || i2 == 0);
             bool b = (i1 == 1 || i2 == 1);
             bool c = (i1 == 2 || i2 == 2);
-
             if (b && c) return 0;
             if (a && c) return 1;
             if (a && b) return 2;
+
+            //switch (i1)
+            //{
+            //    case 0://a = true
+            //        {
+            //            switch (i2)
+            //            {
+            //                case 2://c
+            //                    return 2; 
+            //            }
+            //        } break;
+            //}
+
+            //switch (i1)
+            //{
+            //    case 0://a = true
+            //        {
+            //            switch (i2)
+            //            {
+            //                case 0://a
+            //                    {
+            //                    } break;
+            //                case 1://b
+            //                    {
+            //                    } break;
+            //                case 2://c
+            //                    {
+            //                    } break;
+            //            }
+
+            //        } break;
+            //    case 1://b
+            //        {
+            //            switch (i2)
+            //            {
+            //                case 0://a
+            //                    {
+            //                    } break;
+            //                case 1://b
+            //                    {
+            //                    } break;
+            //                case 2://c
+            //                    {
+            //                    } break;
+            //            }
+            //        } break;
+            //    case 2://c
+            //        {
+            //            switch (i2)
+            //            {
+            //                case 0://a
+            //                    {
+            //                    } break;
+            //                case 1://b
+            //                    {
+            //                    } break;
+            //                case 2://c
+            //                    {
+            //                    } break;
+            //            }
+            //        } break;
+            //}
+
             return -1;
         }
 
-        public bool GetConstrainedEdgeCCW(TriangulationPoint p) { return EdgeIsConstrained((IndexOf(p) + 2) % 3); }
+        // public bool GetConstrainedEdgeCCW(TriangulationPoint p) { return EdgeIsConstrained((IndexOf(p) + 2) % 3); }
         public bool GetConstrainedEdgeCW(TriangulationPoint p) { return EdgeIsConstrained((IndexOf(p) + 1) % 3); }
-        public bool GetConstrainedEdgeAcross(TriangulationPoint p) { return EdgeIsConstrained(IndexOf(p)); }
-        public void SetConstrainedEdgeCCW(TriangulationPoint p, bool ce) { MarkEdgeConstraint((IndexOf(p) + 2) % 3, ce); }
-        public void SetConstrainedEdgeCW(TriangulationPoint p, bool ce) { MarkEdgeConstraint((IndexOf(p) + 1) % 3, ce); }
-        public void SetConstrainedEdgeAcross(TriangulationPoint p, bool ce) { MarkEdgeConstraint(IndexOf(p), ce); }
+        // public bool GetConstrainedEdgeAcross(TriangulationPoint p) { return EdgeIsConstrained(IndexOf(p)); }
+        //public void SetConstrainedEdgeCCW(TriangulationPoint p, bool ce) { MarkEdgeConstraint((IndexOf(p) + 2) % 3, ce); }
+        // public void SetConstrainedEdgeCW(TriangulationPoint p, bool ce) { MarkEdgeConstraint((IndexOf(p) + 1) % 3, ce); }
+        // public void SetConstrainedEdgeAcross(TriangulationPoint p, bool ce) { MarkEdgeConstraint(IndexOf(p), ce); }
 
-        public bool GetDelaunayEdgeCCW(TriangulationPoint p) { return EdgeIsDelaunay((IndexOf(p) + 2) % 3); }
-        public bool GetDelaunayEdgeCW(TriangulationPoint p) { return EdgeIsDelaunay((IndexOf(p) + 1) % 3); }
-        public bool GetDelaunayEdgeAcross(TriangulationPoint p) { return EdgeIsDelaunay(IndexOf(p)); }
+        //public bool GetDelaunayEdgeCCW(TriangulationPoint p) { return EdgeIsDelaunay((IndexOf(p) + 2) % 3); }
+        //public bool GetDelaunayEdgeCW(TriangulationPoint p) { return EdgeIsDelaunay((IndexOf(p) + 1) % 3); }
+        // public bool GetDelaunayEdgeAcross(TriangulationPoint p) { return EdgeIsDelaunay(IndexOf(p)); }
 
-        public void SetDelaunayEdgeCCW(TriangulationPoint p, bool ce) { MarkEdgeDelunay((IndexOf(p) + 2) % 3, ce); }
-        public void SetDelaunayEdgeCW(TriangulationPoint p, bool ce) { MarkEdgeDelunay((IndexOf(p) + 1) % 3, ce); }
-        public void SetDelaunayEdgeAcross(TriangulationPoint p, bool ce) { MarkEdgeDelunay(IndexOf(p), ce); }
+        //public void SetDelaunayEdgeCCW(TriangulationPoint p, bool ce) { MarkEdgeDelunay((IndexOf(p) + 2) % 3, ce); }
+        // public void SetDelaunayEdgeCW(TriangulationPoint p, bool ce) { MarkEdgeDelunay((IndexOf(p) + 1) % 3, ce); }
+        // public void SetDelaunayEdgeAcross(TriangulationPoint p, bool ce) { MarkEdgeDelunay(IndexOf(p), ce); }
 
         public void SetNBCW(int index, bool c, bool d)
         {

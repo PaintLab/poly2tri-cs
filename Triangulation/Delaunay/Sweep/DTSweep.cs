@@ -203,8 +203,10 @@ namespace Poly2Tri
             do
             {
                 tcx.RemoveFromList(t1);
+
                 p1 = t1.PointCCWFrom(p1);
                 t1 = t1.NeighborCCWFrom(p1);
+
             } while (p1 != first);
 
             tcx.FinalizeTriangulation();
@@ -250,7 +252,10 @@ namespace Poly2Tri
             // Get an Internal triangle to start with
             DelaunayTriangle t = tcx.Front.Head.Next.Triangle;
             TriangulationPoint p = tcx.Front.Head.Next.Point;
-            while (!t.GetConstrainedEdgeCW(p)) t = t.NeighborCCWFrom(p);
+            while (!t.GetConstrainedEdgeCW(p))
+            {
+                t = t.NeighborCCWFrom(p);
+            }
 
             // Collect interior triangles constrained by edges
             tcx.MeshClean(t);
@@ -524,7 +529,7 @@ namespace Poly2Tri
 
         private static bool MarkEdgeSideOfTriangle(DelaunayTriangle triangle, TriangulationPoint ep, TriangulationPoint eq)
         {
-            switch (triangle.EdgeIndex(ep, eq))
+            switch (triangle.FindEdgeIndex(ep, eq))
             {
 
                 case 0:
@@ -732,7 +737,7 @@ namespace Poly2Tri
             if (o == Orientation.CCW)
             {
                 // ot is not crossing edge after flip
-                edgeIndex = ot.EdgeIndex(p, op);
+                edgeIndex = ot.FindEdgeIndex(p, op);
                 //ot.EdgeIsDelaunay[edgeIndex] = true;
                 ot.MarkEdgeDelunay(edgeIndex, true);
                 Legalize(tcx, ot);
@@ -740,7 +745,7 @@ namespace Poly2Tri
                 return t;
             }
             // t is not crossing edge after flip
-            edgeIndex = t.EdgeIndex(p, op);
+            edgeIndex = t.FindEdgeIndex(p, op);
             //t.EdgeIsDelaunay[edgeIndex] = true;
             t.MarkEdgeDelunay(edgeIndex, true);
             Legalize(tcx, t);
@@ -1196,23 +1201,20 @@ namespace Poly2Tri
             ot.GetNBs(op, out op_foundAt, out n3, out n4, out ce3, out ce4, out de3, out de4);
 
             int new_p_foundAt;
-            t.Legalize(p_foundAt, p, op, out new_p_foundAt);
-
+            t.Legalize(p_foundAt, p, op, out new_p_foundAt); 
             int new_op_foundAt;
-            ot.Legalize(op_foundAt, op, p, out new_op_foundAt);
+            ot.Legalize(op_foundAt, op, p, out new_op_foundAt); 
 
-
-            // Remap dEdge
-            // Remap cEdge 
+            
             int p_pos_on_ot = ot.FindIndexOf(p);
-            int op_pos_on_ot = ot.FindIndexOf(op);
-            int p_pos_on_t = t.FindIndexOf(p);
-            int op_pos_on_t = t.FindIndexOf(op); 
+            int op_pos_on_ot = new_op_foundAt;//ot.FindIndexOf(op);
+            int p_pos_on_t = new_p_foundAt; //t.FindIndexOf(p);
+            int op_pos_on_t = t.FindIndexOf(op);
 
 
             //ot.SetDelaunayEdgeCCW(p, de1);
             //ot.SetConstrainedEdgeCCW(p, ce1);
-            ot.SetNBCCW(p_pos_on_ot, ce1, de1); 
+            ot.SetNBCCW(p_pos_on_ot, ce1, de1);
 
             //ot.SetDelaunayEdgeCW(op, de4);
             //ot.SetConstrainedEdgeCW(op, ce4);

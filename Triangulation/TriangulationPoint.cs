@@ -38,6 +38,7 @@ namespace Poly2Tri
         // List of edges this point constitutes an upper ending point (CDT) 
         public readonly double X, Y;
         List<DTSweepConstraint> myEdges = new List<DTSweepConstraint>();
+        internal byte tempName;
 
         public TriangulationPoint(double x, double y)
         {
