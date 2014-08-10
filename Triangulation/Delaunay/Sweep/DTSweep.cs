@@ -496,7 +496,22 @@ namespace Poly2Tri
             int index = triangle.EdgeIndex(ep, eq);
             if (index == -1) return false;
             triangle.MarkConstrainedEdge(index);
-            triangle = triangle.Neighbors[index];
+            switch (index)
+            {
+                case 0:
+                    {
+                        triangle = triangle.N0;
+                    } break;
+                case 1:
+                    {
+                        triangle = triangle.N1;
+                    } break;
+                default:
+                    {
+                        triangle = triangle.N2;
+                    } break;
+            }
+
             if (triangle != null) triangle.MarkConstrainedEdge(ep, eq);
             return true;
         }
@@ -952,9 +967,10 @@ namespace Poly2Tri
                 //       instead of below with ot
                 if (t.EdgeIsDelaunay[i]) continue;
 
-                DelaunayTriangle ot = t.Neighbors[i];
-                if (ot == null) continue;
+                //DelaunayTriangle ot = t.Neighbors[i];
 
+
+                DelaunayTriangle ot = null;
                 TriangulationPoint p = null;
                 switch (i)
                 {
@@ -962,16 +978,22 @@ namespace Poly2Tri
                     default:
                         {
                             p = t.P0;
+                            ot = t.N0;
                         } break;
                     case 1:
                         {
                             p = t.P1;
+                            ot = t.N1;
                         } break;
                     case 2:
                         {
                             p = t.P2;
+                            ot = t.N2;
                         } break;
                 }
+                if (ot == null) continue;
+
+
                 //TriangulationPoint p = t.Points[i];
                 TriangulationPoint op = ot.OppositePoint(t, p);
                 int oi = ot.IndexOf(op);
@@ -1013,6 +1035,78 @@ namespace Poly2Tri
             return false;
         }
 
+        //----------------
+        //backup original
+        //private static bool Legalize(DTSweepContext tcx, DelaunayTriangle t)
+        //{
+        //    // To legalize a triangle we start by finding if any of the three edges
+        //    // violate the Delaunay condition
+        //    for (int i = 0; i < 3; i++)
+        //    {
+        //        // TODO: fix so that cEdge is always valid when creating new triangles then we can check it here
+        //        //       instead of below with ot
+        //        if (t.EdgeIsDelaunay[i]) continue;
+
+        //        DelaunayTriangle ot = t.Neighbors[i];
+        //        if (ot == null) continue;
+
+        //        TriangulationPoint p = null;
+        //        switch (i)
+        //        {
+        //            case 0:
+        //            default:
+        //                {
+        //                    p = t.P0;
+        //                } break;
+        //            case 1:
+        //                {
+        //                    p = t.P1;
+        //                } break;
+        //            case 2:
+        //                {
+        //                    p = t.P2;
+        //                } break;
+        //        }
+        //        //TriangulationPoint p = t.Points[i];
+        //        TriangulationPoint op = ot.OppositePoint(t, p);
+        //        int oi = ot.IndexOf(op);
+        //        // If this is a Constrained Edge or a Delaunay Edge(only during recursive legalization)
+        //        // then we should not try to legalize
+        //        if (ot.EdgeIsConstrained[oi] || ot.EdgeIsDelaunay[oi])
+        //        {
+        //            t.EdgeIsConstrained[i] = ot.EdgeIsConstrained[oi]; // XXX: have no good way of setting this property when creating new triangles so lets set it here
+        //            continue;
+        //        }
+
+        //        if (!TriangulationUtil.SmartIncircle(p, t.PointCCWFrom(p), t.PointCWFrom(p), op)) continue;
+
+        //        // Lets mark this shared edge as Delaunay 
+        //        t.EdgeIsDelaunay[i] = true;
+        //        ot.EdgeIsDelaunay[oi] = true;
+
+        //        // Lets rotate shared edge one vertex CW to legalize it
+        //        RotateTrianglePair(t, p, ot, op);
+
+        //        // We now got one valid Delaunay Edge shared by two triangles
+        //        // This gives us 4 new edges to check for Delaunay
+
+        //        // Make sure that triangle to node mapping is done only one time for a specific triangle
+        //        if (!Legalize(tcx, t)) tcx.MapTriangleToNodes(t);
+        //        if (!Legalize(tcx, ot)) tcx.MapTriangleToNodes(ot);
+
+        //        // Reset the Delaunay edges, since they only are valid Delaunay edges
+        //        // until we add a new triangle or point.
+        //        // XXX: need to think about this. Can these edges be tried after we 
+        //        //      return to previous recursive level?
+        //        t.EdgeIsDelaunay[i] = false;
+        //        ot.EdgeIsDelaunay[oi] = false;
+
+        //        // If triangle have been legalized no need to check the other edges since
+        //        // the recursive legalization will handles those so we can end here.
+        //        return true;
+        //    }
+        //    return false;
+        //}
         /// <summary>
         /// Rotates a triangle pair one vertex CW
         ///       n2                    n2
@@ -1065,8 +1159,12 @@ namespace Poly2Tri
             //      what side should be assigned to what neighbor after the 
             //      rotation. Now mark neighbor does lots of testing to find 
             //      the right side.
-            t.Neighbors.Clear();
-            ot.Neighbors.Clear();
+            //t.Neighbors.Clear();
+            //ot.Neighbors.Clear();
+
+            t.ClearAllNBs();
+            ot.ClearAllNBs();
+
             if (n1 != null) ot.MarkNeighbor(n1);
             if (n2 != null) t.MarkNeighbor(n2);
             if (n3 != null) t.MarkNeighbor(n3);

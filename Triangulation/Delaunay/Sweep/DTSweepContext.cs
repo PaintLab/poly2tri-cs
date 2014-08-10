@@ -97,13 +97,28 @@ namespace Poly2Tri
                 triangle.IsInterior = true;
                 Triangulatable.AddTriangle(triangle);
 
-                for (int i = 0; i < 3; i++)
+                //0
+                if (!triangle.EdgeIsConstrained[0])
                 {
-                    if (!triangle.EdgeIsConstrained[i])
-                    {
-                        MeshCleanReq(triangle.Neighbors[i]);
-                    }
+                    MeshCleanReq(triangle.N0);
                 }
+                //1
+                if (!triangle.EdgeIsConstrained[1])
+                {
+                    MeshCleanReq(triangle.N1);
+                }
+                //2
+                if (!triangle.EdgeIsConstrained[2])
+                {
+                    MeshCleanReq(triangle.N2);
+                }
+                //for (int i = 0; i < 3; i++)
+                //{
+                //    if (!triangle.EdgeIsConstrained[i])
+                //    {
+                //        MeshCleanReq(triangle.Neighbors[i]);
+                //    }
+                //}
             }
         }
 
@@ -173,17 +188,17 @@ namespace Poly2Tri
             //        if (n != null) n.Triangle = t;
             //    }
 
-            if (t.Neighbors[0] == null)
+            if (t.N0 == null)
             {
                 AdvancingFrontNode n = Front.LocatePoint(t.PointCWFrom(t.P0));
                 if (n != null) n.Triangle = t;
             }
-            if (t.Neighbors[1] == null)
+            if (t.N1 == null)
             {
                 AdvancingFrontNode n = Front.LocatePoint(t.PointCWFrom(t.P1));
                 if (n != null) n.Triangle = t;
             }
-            if (t.Neighbors[2] == null)
+            if (t.N2 == null)
             {
                 AdvancingFrontNode n = Front.LocatePoint(t.PointCWFrom(t.P2));
                 if (n != null) n.Triangle = t;
