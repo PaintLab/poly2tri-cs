@@ -280,7 +280,7 @@ namespace Poly2Tri
                 Fill(tcx, node);
             }
 
-           //tcx.AddNode(newNode);
+            //tcx.AddNode(newNode);
 
             FillAdvancingFront(tcx, newNode);
             return newNode;
@@ -291,14 +291,12 @@ namespace Poly2Tri
         /// </summary>
         private static AdvancingFrontNode NewFrontTriangle(DTSweepContext tcx, TriangulationPoint point, AdvancingFrontNode node)
         {
-            AdvancingFrontNode newNode;
-            DelaunayTriangle triangle;
 
-            triangle = new DelaunayTriangle(point, node.Point, node.Next.Point);
+            DelaunayTriangle triangle = new DelaunayTriangle(point, node.Point, node.Next.Point);
             triangle.MarkNeighbor(node.Triangle);
             tcx.Triangles.Add(triangle);
 
-            newNode = new AdvancingFrontNode(point);
+            AdvancingFrontNode newNode = new AdvancingFrontNode(point);
             newNode.Next = node.Next;
             newNode.Prev = node;
             node.Next.Prev = newNode;
@@ -989,7 +987,7 @@ namespace Poly2Tri
             // Update the advancing front
             node.Prev.Next = node.Next;
             node.Next.Prev = node.Prev;
-           // tcx.RemoveNode(node);
+            // tcx.RemoveNode(node);
 
             // If it was legalized the triangle has already been mapped
             if (!Legalize(tcx, triangle)) tcx.MapTriangleToNodes(triangle);
@@ -998,19 +996,21 @@ namespace Poly2Tri
         /// <summary>
         /// Returns true if triangle was legalized
         /// </summary>
-        private static bool Legalize(DTSweepContext tcx, DelaunayTriangle t)
+        static bool Legalize(DTSweepContext tcx, DelaunayTriangle t)
         {
             // To legalize a triangle we start by finding if any of the three edges
             // violate the Delaunay condition
+            //-----------------------------------------------------------------------
+
+
             for (int i = 0; i < 3; i++)
             {
                 // TODO: fix so that cEdge is always valid when creating new triangles then we can check it here
-                //       instead of below with ot
-                if (t.EdgeIsDelaunay(i)) continue;
-
-                //DelaunayTriangle ot = t.Neighbors[i];
-
-
+                //       instead of below with ot  
+                //if (t.EdgeIsDelaunay(i))
+                //{
+                //    continue;
+                //}
                 DelaunayTriangle ot = null;
                 TriangulationPoint p = null;
                 switch (i)
@@ -1018,34 +1018,39 @@ namespace Poly2Tri
                     case 0:
                     default:
                         {
+                            if (t.D0) continue;
                             p = t.P0;
                             ot = t.N0;
                         } break;
                     case 1:
                         {
+                            if (t.D1) continue;
                             p = t.P1;
                             ot = t.N1;
                         } break;
                     case 2:
                         {
+                            if (t.D2) continue;
                             p = t.P2;
                             ot = t.N2;
                         } break;
                 }
-                if (ot == null) continue;
+                if (ot == null)
+                {
+                    continue;
+                }
 
-
-                //TriangulationPoint p = t.Points[i];
                 TriangulationPoint op = ot.OppositePoint(t, p);
                 int oi = ot.IndexOf(op);
+
                 // If this is a Constrained Edge or a Delaunay Edge(only during recursive legalization)
                 // then we should not try to legalize
                 //if (ot.EdgeIsConstrained[oi] || ot.EdgeIsDelaunay(oi))
-                if (ot.EdgeIsConstrained(oi) || ot.EdgeIsDelaunay(oi))
-                {
 
-                    //t.EdgeIsConstrained[i] = ot.EdgeIsConstrained[oi];
-                    t.MarkEdgeConstraint(i, ot.EdgeIsConstrained(oi));
+                bool ot_EdgeIsConstrained = false;
+                if ((ot_EdgeIsConstrained = ot.EdgeIsConstrained(oi)) || ot.EdgeIsDelaunay(oi))
+                {
+                    t.MarkEdgeConstraint(i, ot_EdgeIsConstrained);
                     // XXX: have no good way of setting this property when creating new triangles so lets set it here
                     continue;
                 }
@@ -1053,13 +1058,11 @@ namespace Poly2Tri
                 if (!TriangulationUtil.SmartIncircle(p, t.PointCCWFrom(p), t.PointCWFrom(p), op)) continue;
 
                 // Lets mark this shared edge as Delaunay 
-                //t.EdgeIsDelaunay[i] = true;
-                //ot.EdgeIsDelaunay[oi] = true;
                 t.MarkEdgeDelunay(i, true);
                 ot.MarkEdgeDelunay(oi, true);
+
                 // Lets rotate shared edge one vertex CW to legalize it
                 RotateTrianglePair(t, p, ot, op);
-
                 // We now got one valid Delaunay Edge shared by two triangles
                 // This gives us 4 new edges to check for Delaunay
 
@@ -1154,6 +1157,8 @@ namespace Poly2Tri
         //    }
         //    return false;
         //}
+
+
         /// <summary>
         /// Rotates a triangle pair one vertex CW
         ///       n2                    n2
@@ -1166,40 +1171,62 @@ namespace Poly2Tri
         ///    +-----+ oP            +-----+
         ///       n4                    n4
         /// </summary>
-        private static void RotateTrianglePair(DelaunayTriangle t, TriangulationPoint p, DelaunayTriangle ot, TriangulationPoint op)
+        static void RotateTrianglePair(DelaunayTriangle t, TriangulationPoint p, DelaunayTriangle ot, TriangulationPoint op)
         {
+
+            //n1 = t.NeighborCCWFrom(p);
+            //n2 = t.NeighborCWFrom(p);          
+            //n3 = ot.NeighborCCWFrom(op);
+            //n4 = ot.NeighborCWFrom(op);
+            //ce1 = t.GetConstrainedEdgeCCW(p);
+            //ce2 = t.GetConstrainedEdgeCW(p);
+            //ce3 = ot.GetConstrainedEdgeCCW(op);
+            //ce4 = ot.GetConstrainedEdgeCW(op);
+            //de1 = t.GetDelaunayEdgeCCW(p);
+            //de2 = t.GetDelaunayEdgeCW(p);
+            //de3 = ot.GetDelaunayEdgeCCW(op);
+            //de4 = ot.GetDelaunayEdgeCW(op);
+
             DelaunayTriangle n1, n2, n3, n4;
-            n1 = t.NeighborCCWFrom(p);
-            n2 = t.NeighborCWFrom(p);
-            n3 = ot.NeighborCCWFrom(op);
-            n4 = ot.NeighborCWFrom(op);
-
             bool ce1, ce2, ce3, ce4;
-            ce1 = t.GetConstrainedEdgeCCW(p);
-            ce2 = t.GetConstrainedEdgeCW(p);
-            ce3 = ot.GetConstrainedEdgeCCW(op);
-            ce4 = ot.GetConstrainedEdgeCW(op);
-
             bool de1, de2, de3, de4;
-            de1 = t.GetDelaunayEdgeCCW(p);
-            de2 = t.GetDelaunayEdgeCW(p);
-            de3 = ot.GetDelaunayEdgeCCW(op);
-            de4 = ot.GetDelaunayEdgeCW(op);
 
-            t.Legalize(p, op);
-            ot.Legalize(op, p);
+            int p_foundAt, op_foundAt;
+            t.GetNBs(p, out p_foundAt, out n1, out n2, out ce1, out ce2, out de1, out de2);
+            ot.GetNBs(op, out op_foundAt, out n3, out n4, out ce3, out ce4, out de3, out de4);
+
+            int new_p_foundAt;
+            t.Legalize(p_foundAt, p, op, out new_p_foundAt);
+
+            int new_op_foundAt;
+            ot.Legalize(op_foundAt, op, p, out new_op_foundAt);
+
 
             // Remap dEdge
-            ot.SetDelaunayEdgeCCW(p, de1);
-            t.SetDelaunayEdgeCW(p, de2);
-            t.SetDelaunayEdgeCCW(op, de3);
-            ot.SetDelaunayEdgeCW(op, de4);
+            // Remap cEdge 
+            int p_pos_on_ot = ot.FindIndexOf(p);
+            int op_pos_on_ot = ot.FindIndexOf(op);
+            int p_pos_on_t = t.FindIndexOf(p);
+            int op_pos_on_t = t.FindIndexOf(op); 
 
-            // Remap cEdge
-            ot.SetConstrainedEdgeCCW(p, ce1);
-            t.SetConstrainedEdgeCW(p, ce2);
-            t.SetConstrainedEdgeCCW(op, ce3);
-            ot.SetConstrainedEdgeCW(op, ce4);
+
+            //ot.SetDelaunayEdgeCCW(p, de1);
+            //ot.SetConstrainedEdgeCCW(p, ce1);
+            ot.SetNBCCW(p_pos_on_ot, ce1, de1); 
+
+            //ot.SetDelaunayEdgeCW(op, de4);
+            //ot.SetConstrainedEdgeCW(op, ce4);
+            ot.SetNBCW(op_pos_on_ot, ce4, de4);
+
+
+            //t.SetDelaunayEdgeCW(p, de2);
+            //t.SetConstrainedEdgeCW(p, ce2);
+            t.SetNBCW(p_pos_on_t, ce2, de2);
+
+            //t.SetDelaunayEdgeCCW(op, de3);
+            //t.SetConstrainedEdgeCCW(op, ce3);
+            t.SetNBCCW(op_pos_on_t, ce3, de3);
+
 
             // Remap neighbors
             // XXX: might optimize the markNeighbor by keeping track of

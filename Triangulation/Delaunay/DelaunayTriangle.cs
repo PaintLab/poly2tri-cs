@@ -56,7 +56,7 @@ namespace Poly2Tri
         public DelaunayTriangle N0, N1, N2;
 
         //edge Delaunay  mark
-        bool D0, D1, D2;
+        internal bool D0, D1, D2;
         //edge Constraint mark
         public bool C0, C1, C2;
 
@@ -91,7 +91,7 @@ namespace Poly2Tri
             //if (i == -1) throw new Exception("Calling index with a point that doesn't exist in triangle");
             //return i;
         }
-        int FindIndexOf(TriangulationPoint p)
+        internal int FindIndexOf(TriangulationPoint p)
         {
 
             if (P0 == p) return 0;
@@ -310,6 +310,59 @@ namespace Poly2Tri
                     return N2;
             }
         }
+        /// <summary>
+        /// get neighbor CW and CCW
+        /// </summary>
+        /// <param name="point"></param>
+        /// <param name="cw"></param>
+        /// <param name="ccw"></param>
+        public void GetNBs(TriangulationPoint point,
+            out int foundAt,
+            out DelaunayTriangle t_ccw,
+            out DelaunayTriangle t_cw,
+            out bool c_ccw,
+            out bool c_cw,
+            out bool d_ccw,
+            out bool d_cw)
+        {
+
+            switch (foundAt = IndexOf(point)) //ccw
+            {
+                case 0:
+                    t_cw = N1;
+                    t_ccw = N2;
+
+                    c_cw = C1;
+                    c_ccw = C2;
+
+                    d_cw = D1;
+                    d_ccw = D2;
+
+                    break;
+                case 1:
+                    t_cw = N2;
+                    t_ccw = N0;
+
+                    c_cw = C2;
+                    c_ccw = C0;
+
+                    d_cw = D2;
+                    d_ccw = D0;
+
+                    break;
+                default://2
+                    t_cw = N0;
+                    t_ccw = N1;
+
+                    c_cw = C0;
+                    c_ccw = C1;
+
+                    d_cw = D0;
+                    d_ccw = D1;
+                    break;
+            }
+        }
+
         public DelaunayTriangle NeighborAcrossFrom(TriangulationPoint point)
         {
             // return Neighbors[InternalIndexOf(point)];
@@ -357,40 +410,54 @@ namespace Poly2Tri
 
         }
 
-        private void RotateCW()
-        {
-            var temp = P2;
-            P2 = P1;
-            P1 = P0;
-            P0 = temp;
-        }
 
         /// <summary>
         /// Legalize triangle by rotating clockwise around oPoint
         /// </summary>
         /// <param name="oPoint">The origin point to rotate around</param>
         /// <param name="nPoint">???</param>
-        public void Legalize(TriangulationPoint oPoint, TriangulationPoint nPoint)
+        internal void Legalize(int previousOPointIndex, TriangulationPoint oPoint, TriangulationPoint nPoint, out int newOPointIndex)
         {
-            RotateCW();
-            switch (IndexCCWFrom(oPoint))
+
+            //----------------
+            //rotate cw (clockwise) 
+            var temp = P2;
+            P2 = P1;
+            P1 = P0;
+            P0 = temp;
+            //---------------- 
+            switch (previousOPointIndex)
             {
                 case 0:
                     {
-                        P0 = nPoint;
+                        //after rotate cw , previousOPointIndex of oPoint 
+                        // from 0 => 1;
+                        newOPointIndex = 1;
+                        // (IndexOf(1) + 1) % 3; =>1
+                        // 2%3 = 2                        
+                        P2 = nPoint;
                     } break;
                 case 1:
                     {
-                        P1 = nPoint;
+                        //after rotate cw , previousOPointIndex  of oPoint
+                        //1 => 2;
+                        newOPointIndex = 2;
+                        //(IndexOf(2) + 1) % 3; ==>0
+                        //3 %3 =0 
+                        P0 = nPoint;
+
                     } break;
                 case 2:
                 default:
                     {
-                        P2 = nPoint;
+                        //after rotate cw , previousOPointIndex  of 
+                        //oPoint  2 => 0;
+                        newOPointIndex = 0;
+                        //return (IndexOf(0) + 1) % 3;==>2
+                        //1%3 = 1; 
+                        P1 = nPoint;
                     } break;
-
             }
-            //Points[IndexCCWFrom(oPoint)] = nPoint;
         }
 
         public override string ToString() { return P0 + "," + P1 + "," + P2; }
@@ -512,13 +579,13 @@ namespace Poly2Tri
         /// </summary>
         public void SelectAndMarkConstrainedEdge(TriangulationPoint p, TriangulationPoint q)
         {
-            MarkEdgeConstraint(EdgeIndex(p, q), true); 
+            MarkEdgeConstraint(EdgeIndex(p, q), true);
         }
 
         public double Area()
         {
             double b = P0.X - P1.X;
-            double h = P2.Y - P1.Y; 
+            double h = P2.Y - P1.Y;
             return Math.Abs((b * h * 0.5f));
         }
 
@@ -559,10 +626,56 @@ namespace Poly2Tri
         public bool GetDelaunayEdgeCCW(TriangulationPoint p) { return EdgeIsDelaunay((IndexOf(p) + 2) % 3); }
         public bool GetDelaunayEdgeCW(TriangulationPoint p) { return EdgeIsDelaunay((IndexOf(p) + 1) % 3); }
         public bool GetDelaunayEdgeAcross(TriangulationPoint p) { return EdgeIsDelaunay(IndexOf(p)); }
+
         public void SetDelaunayEdgeCCW(TriangulationPoint p, bool ce) { MarkEdgeDelunay((IndexOf(p) + 2) % 3, ce); }
         public void SetDelaunayEdgeCW(TriangulationPoint p, bool ce) { MarkEdgeDelunay((IndexOf(p) + 1) % 3, ce); }
         public void SetDelaunayEdgeAcross(TriangulationPoint p, bool ce) { MarkEdgeDelunay(IndexOf(p), ce); }
 
-
+        public void SetNBCW(int index, bool c, bool d)
+        {
+            //IndexOf(p) + 1) % 3
+            switch ((index + 1) % 3)
+            {
+                case 0:
+                    {
+                        C0 = c;
+                        D0 = d;
+                    } break;
+                case 1:
+                    {
+                        //(1+1)%3= 1
+                        C1 = c;
+                        D1 = d;
+                    } break;
+                case 2:
+                    {
+                        C2 = c;
+                        D2 = d;
+                    } break;
+            }
+        }
+        public void SetNBCCW(int index, bool c, bool d)
+        {
+            //  IndexOf(p) + 2) % 3
+            switch ((index + 2) % 3)
+            {
+                case 0:
+                    {
+                        C0 = c;
+                        D0 = d;
+                    } break;
+                case 1:
+                    {
+                        //(1+1)%3= 1
+                        C1 = c;
+                        D1 = d;
+                    } break;
+                case 2:
+                    {
+                        C2 = c;
+                        D2 = d;
+                    } break;
+            }
+        }
     }
 }
