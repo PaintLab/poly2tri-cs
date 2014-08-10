@@ -110,17 +110,41 @@ namespace Poly2Tri
 
                 node = PointEvent(tcx, point);
 
-                if (point.HasEdges)
+                var internalEdgeList = point.GetInternalEdgeList();
+
+                if (internalEdgeList != null)
                 {
-                    foreach (DTSweepConstraint e in point.GetEdgeIter())
+                    int j = internalEdgeList.Count;
+
+                    if (tcx.IsDebugEnabled)
                     {
-                        if (tcx.IsDebugEnabled)
+                        for (int m = 0; m < j; ++m)
                         {
+                            var e = internalEdgeList[m];
                             tcx.DTDebugContext.ActiveConstraint = e;
+                            EdgeEvent(tcx, e, node);
                         }
-                        EdgeEvent(tcx, e, node);
+                    }
+                    else
+                    {
+                        for (int m = 0; m < j; ++m)
+                        {
+                            EdgeEvent(tcx, internalEdgeList[m], node);
+                        }
                     }
                 }
+
+                //if (point.HasEdges)
+                //{ 
+                //    foreach (DTSweepConstraint e in point.GetEdgeIter())
+                //    {
+                //        if (tcx.IsDebugEnabled)
+                //        {
+                //            tcx.DTDebugContext.ActiveConstraint = e;
+                //        }
+                //        EdgeEvent(tcx, e, node);
+                //    }
+                //}
                 tcx.Update(null);
             }
         }
@@ -296,7 +320,7 @@ namespace Poly2Tri
 
                 if (tcx.IsDebugEnabled) { tcx.DTDebugContext.PrimaryTriangle = node.Triangle; }
 
-                if (IsEdgeSideOfTriangle(node.Triangle, edge.P, edge.Q)) return;
+                if (MarkEdgeSideOfTriangle(node.Triangle, edge.P, edge.Q)) return;
 
                 // For now we will do all needed filling
                 // TODO: integrate with flip process might give some better performance 
@@ -312,7 +336,7 @@ namespace Poly2Tri
             }
         }
 
-        private static void FillEdgeEvent(DTSweepContext tcx, DTSweepConstraint edge, AdvancingFrontNode node)
+        static void FillEdgeEvent(DTSweepContext tcx, DTSweepConstraint edge, AdvancingFrontNode node)
         {
             if (tcx.EdgeEvent.Right)
             {
@@ -324,7 +348,7 @@ namespace Poly2Tri
             }
         }
 
-        private static void FillRightConcaveEdgeEvent(DTSweepContext tcx, DTSweepConstraint edge, AdvancingFrontNode node)
+        static void FillRightConcaveEdgeEvent(DTSweepContext tcx, DTSweepConstraint edge, AdvancingFrontNode node)
         {
             Fill(tcx, node.Next);
             if (node.Next.Point != edge.P)
@@ -397,7 +421,7 @@ namespace Poly2Tri
             while (node.Next.Point.X < edge.P.X)
             {
                 if (tcx.IsDebugEnabled) { tcx.DTDebugContext.ActiveNode = node; }
-                // Check if next node is below the edge
+
                 Orientation o1 = TriangulationUtil.Orient2d(edge.Q, node.Next.Point, edge.P);
                 if (o1 == Orientation.CCW)
                 {
@@ -496,32 +520,37 @@ namespace Poly2Tri
             }
         }
 
-        private static bool IsEdgeSideOfTriangle(DelaunayTriangle triangle, TriangulationPoint ep, TriangulationPoint eq)
+
+        private static bool MarkEdgeSideOfTriangle(DelaunayTriangle triangle, TriangulationPoint ep, TriangulationPoint eq)
         {
-            int index = triangle.EdgeIndex(ep, eq);
-            if (index == -1)
+            switch (triangle.EdgeIndex(ep, eq))
             {
-                return false;
-            }
-            triangle.MarkConstrainedEdge(index);
-            switch (index)
-            {
+
                 case 0:
-                    {
-                        triangle = triangle.N0;
-                    } break;
+                    {   //mark constraint
+                        triangle.C0 = true;
+                        //change triangle here
+                        if ((triangle = triangle.N0) != null) { triangle.SelectAndMarkConstrainedEdge(ep, eq); }
+                        return true;
+                    }
                 case 1:
                     {
-                        triangle = triangle.N1;
-                    } break;
-                default:
+                        triangle.C1 = true;
+                        //change triangle here
+                        if ((triangle = triangle.N1) != null) { triangle.SelectAndMarkConstrainedEdge(ep, eq); }
+                        return true;
+                    }
+                case 2:
                     {
-                        triangle = triangle.N2;
-                    } break;
-            }
-
-            if (triangle != null) triangle.SelectAndMarkConstrainedEdge(ep, eq);
-            return true;
+                        triangle.C2 = true;
+                        //change triangle here
+                        if ((triangle = triangle.N2) != null) { triangle.SelectAndMarkConstrainedEdge(ep, eq); }
+                        return true;
+                    }
+                default:
+                    //may be -1 
+                    return false;
+            }             
         }
 
         private static void EdgeEvent(DTSweepContext tcx, TriangulationPoint ep, TriangulationPoint eq, DelaunayTriangle triangle, TriangulationPoint point)
@@ -530,7 +559,7 @@ namespace Poly2Tri
 
             if (tcx.IsDebugEnabled) tcx.DTDebugContext.PrimaryTriangle = triangle;
 
-            if (IsEdgeSideOfTriangle(triangle, ep, eq)) return;
+            if (MarkEdgeSideOfTriangle(triangle, ep, eq)) return;
 
             p1 = triangle.PointCCWFrom(point);
             Orientation o1 = TriangulationUtil.Orient2d(eq, p1, ep);
@@ -575,7 +604,7 @@ namespace Poly2Tri
                 FlipEdgeEvent(tcx, ep, eq, triangle, point);
             }
         }
-         
+
         /// <summary>
         /// In the case of a pointset with some constraint edges. If a triangle side is collinear
         /// with a part of the constraint we split the constraint into two constraints. This could

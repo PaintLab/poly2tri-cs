@@ -62,21 +62,21 @@ namespace Poly2Tri
         public DTSweepContext()
         { 
         } 
-        public override bool IsDebugEnabled
-        {
-            get
-            {
-                return base.IsDebugEnabled;
-            }
-            protected set
-            {
-                if (value && DebugContext == null)
-                {
-                    DebugContext = new DTSweepDebugContext(this);
-                }
-                base.IsDebugEnabled = value;
-            }
-        }
+        //public   bool IsDebugEnabled
+        //{
+        //    get
+        //    {
+        //        return base.IsDebugEnabled;
+        //    }
+        //    //protected set
+        //    //{
+        //    //    if (value && DebugContext == null)
+        //    //    {
+        //    //        DebugContext = new DTSweepDebugContext(this);
+        //    //    }
+        //    //    base.IsDebugEnabled = value;
+        //    //}
+        //}
 
         public void RemoveFromList(DelaunayTriangle triangle)
         {

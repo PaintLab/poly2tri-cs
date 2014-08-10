@@ -64,17 +64,21 @@ namespace Poly2Tri
                 myEdges = new List<DTSweepConstraint>();
             }
             myEdges.Add(e);
-        } 
-        public IEnumerable<DTSweepConstraint> GetEdgeIter()
+        }
+        //public IEnumerable<DTSweepConstraint> GetEdgeIter()
+        //{
+        //    List<DTSweepConstraint> edges = this.myEdges;
+        //    if (edges != null)
+        //    {
+        //        foreach (var e in edges)
+        //        {
+        //            yield return e;
+        //        }
+        //    }
+        //}
+        internal List<DTSweepConstraint> GetInternalEdgeList()
         {
-            List<DTSweepConstraint> edges = this.myEdges;
-            if (edges != null)
-            {
-                foreach (var e in edges)
-                {
-                    yield return e;
-                }
-            }
+            return this.myEdges;
         }
         public bool HasEdges { get { return myEdges != null; } }
 

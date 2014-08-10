@@ -194,8 +194,11 @@ namespace Poly2Tri
                 case 1:
                     this.C1 = value;
                     break;
-                default:
+                case 2:
                     this.C2 = value;
+                    break;
+                default:
+                    //may be -1
                     break;
             }
         }
@@ -508,10 +511,7 @@ namespace Poly2Tri
                 }
             }
         }
-        public void MarkConstrainedEdge(int index)
-        {
-            MarkEdgeConstraint(index, true);
-        }
+
 
         public void SelectAndMarkConstrainedEdge(DTSweepConstraint edge)
         {
@@ -522,13 +522,9 @@ namespace Poly2Tri
         /// Mark edge as constrained
         /// </summary>
         public void SelectAndMarkConstrainedEdge(TriangulationPoint p, TriangulationPoint q)
-        {
-            int i = EdgeIndex(p, q);
-            if (i != -1)
-            {
-                //MarkConstrainedEdge(i, true);
-                MarkEdgeConstraint(i, true);
-            }
+        {  
+            MarkEdgeConstraint(EdgeIndex(p, q), true);
+
         }
 
         public double Area()
@@ -552,7 +548,7 @@ namespace Poly2Tri
         /// <returns>index of the shared edge or -1 if edge isn't shared</returns>
         public int EdgeIndex(TriangulationPoint p1, TriangulationPoint p2)
         {
-            int i1 = InternalIndexOf(p1);// Points.IndexOf(p1);
+            int i1 = InternalIndexOf(p1); 
             int i2 = InternalIndexOf(p2);
 
             // Points of this triangle in the edge p1-p2

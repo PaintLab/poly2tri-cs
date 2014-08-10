@@ -38,7 +38,7 @@ namespace Poly2Tri
     {
 
         public readonly List<DelaunayTriangle> Triangles = new List<DelaunayTriangle>();
-        public readonly List<TriangulationPoint> Points = new List<TriangulationPoint>(200); 
+        public readonly List<TriangulationPoint> Points = new List<TriangulationPoint>(200);
         internal TriangulationContext()
         {
         }
@@ -70,7 +70,12 @@ namespace Poly2Tri
 #endif
         }
 
-        public virtual bool IsDebugEnabled { get; protected set; }
+        public bool IsDebugEnabled { get; private set; }
+
+        protected void SetDebugMode(bool enable)
+        {
+            this.IsDebugEnabled = enable;
+        }
 
         public DTSweepDebugContext DTDebugContext { get { return DebugContext as DTSweepDebugContext; } }
 
