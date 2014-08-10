@@ -168,7 +168,8 @@ namespace Poly2Tri {
 				float xmid = (xmin+xmax)/2;
 				float ymid = (ymin+ymax)/2;
 
-				Func<TriangulationPoint,PointF> f = (p) => new PointF( (p.Xf-xmid)*zoom, (p.Yf-ymid)*zoom );
+				Func<TriangulationPoint,PointF> 
+                    f = (p) => new PointF( (p.Xf-xmid)*zoom, (p.Yf-ymid)*zoom );
 
 				if ( Info.Polygon.Points != null ) {
 					PointBounceIndex %= Info.Polygon.Points.Count;

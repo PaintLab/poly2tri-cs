@@ -32,38 +32,49 @@
 using System;
 using System.Linq;
 
-namespace Poly2Tri {
-	class PolygonInfo {
-		public string Name { get; private set; }
-		public TimeSpan LastTriangulationDuration { get; private set; }
-		public Exception LastTriangulationException { get; private set; }
+namespace Poly2Tri
+{
+    class PolygonInfo
+    {
+        public string Name { get; private set; }
+        public TimeSpan LastTriangulationDuration { get; private set; }
+        public Exception LastTriangulationException { get; private set; }
 
-		public Polygon Polygon { get; private set; }
+        public Polygon Polygon { get; private set; }
 
-		public PolygonInfo( string name, Polygon polygon ) {
-			Name = name;
-			Polygon = polygon;
-			Triangulate();
-		}
+        public PolygonInfo(string name, Polygon polygon)
+        {
+            Name = name;
+            Polygon = polygon;
+            Triangulate();
+        }
 
-		static Polygon CleanClone( Polygon polygon ) {
-			var n = new Polygon(polygon.Points.Select( p => new PolygonPoint(p.X,p.Y) ) );
-			if ( polygon.Holes!=null ) foreach ( var hole in polygon.Holes ) n.AddHole(CleanClone(hole));
-			return n;
-		}
+        static Polygon CleanClone(Polygon polygon)
+        {
+            //simple clone 
+            
+            var n = new Polygon(polygon.Points.Select(p => new PolygonPoint(p.X, p.Y)));
+            if (polygon.Holes != null) foreach (var hole in polygon.Holes) n.AddHole(CleanClone(hole));
+            return n;
+        }
 
-		public void Triangulate() {
-			var start = DateTime.Now;
-			try {
-				LastTriangulationException = null;
-				var newpoly = CleanClone(Polygon);
-				P2T.Triangulate(newpoly);
-				Polygon = newpoly;
-			} catch ( Exception e ) {
-				LastTriangulationException = e;
-			}
-			var stop = DateTime.Now;
-			LastTriangulationDuration = (stop-start);
-		}
-	}
+        public void Triangulate()
+        {
+            var start = DateTime.Now;
+            try
+            {
+                LastTriangulationException = null;
+                var newpoly = CleanClone(Polygon);
+                P2T.Triangulate(newpoly);
+                Polygon = newpoly;
+            }
+            catch (Exception e)
+            {
+                LastTriangulationException = e;
+            }
+
+            var stop = DateTime.Now;
+            LastTriangulationDuration = (stop - start);
+        }
+    }
 }
