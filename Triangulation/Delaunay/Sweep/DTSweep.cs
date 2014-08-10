@@ -92,7 +92,7 @@ namespace Poly2Tri
                 FinalizationConvexHull(tcx);
             }
 
-            tcx.Done();
+            tcx.dbugDone();
         }
 
         /// <summary>
@@ -239,10 +239,14 @@ namespace Poly2Tri
         /// </summary>
         private static AdvancingFrontNode PointEvent(DTSweepContext tcx, TriangulationPoint point)
         {
-            AdvancingFrontNode node, newNode;
-
+            AdvancingFrontNode node, newNode; 
             node = tcx.LocateNode(point);
-            if (tcx.IsDebugEnabled) tcx.DTDebugContext.ActiveNode = node;
+
+            if (tcx.IsDebugEnabled)
+            {
+                tcx.DTDebugContext.ActiveNode = node;
+            }
+
             newNode = NewFrontTriangle(tcx, point, node);
 
             // Only need to check +epsilon since point never have smaller 

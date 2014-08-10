@@ -45,12 +45,7 @@ namespace Poly2Tri
         public TriangulationMode TriangulationMode { get; protected set; }
         public Triangulatable Triangulatable { get; private set; }
 
-        public int StepCount { get; private set; }
 
-        public void Done()
-        {
-            StepCount++;
-        }
 
         public abstract TriangulationAlgorithm Algorithm { get; }
 
@@ -69,12 +64,24 @@ namespace Poly2Tri
         public virtual void Clear()
         {
             Points.Clear();
-            if (DebugContext != null) DebugContext.Clear();
-            StepCount = 0;
+            if (DebugContext != null) { DebugContext.Clear(); }
+
+#if DEBUG
+            dbugStepCount = 0;
+#endif
         }
 
         public virtual bool IsDebugEnabled { get; protected set; }
 
         public DTSweepDebugContext DTDebugContext { get { return DebugContext as DTSweepDebugContext; } }
+
+
+#if DEBUG
+        int dbugStepCount;
+        public void dbugDone()
+        {
+            dbugStepCount++;
+        }
+#endif
     }
 }

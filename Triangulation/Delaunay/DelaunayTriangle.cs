@@ -51,8 +51,6 @@ namespace Poly2Tri
 
     public class DelaunayTriangle
     {
-        //public FixedBitArray3 EdgeIsConstrained;
-        //public FixedBitArray3 EdgeIsDelaunay;
 
         public TriangulationPoint P0, P1, P2;
         public DelaunayTriangle N0, N1, N2;

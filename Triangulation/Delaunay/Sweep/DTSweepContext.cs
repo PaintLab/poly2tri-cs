@@ -42,16 +42,14 @@ namespace Poly2Tri
     {
         // Inital triangle factor, seed triangle will extend 30% of 
         // PointSet width to both left and right.
-        private readonly float ALPHA = 0.3f;
+        private const float ALPHA = 0.3f;
 
         public AdvancingFront Front;
         public TriangulationPoint Head { get; set; }
         public TriangulationPoint Tail { get; set; }
 
         public DTSweepBasin Basin = new DTSweepBasin();
-        public DTSweepEdgeEvent EdgeEvent = new DTSweepEdgeEvent();
-
-        private DTSweepPointComparator _comparator = new DTSweepPointComparator();
+        public DTSweepEdgeEvent EdgeEvent = new DTSweepEdgeEvent(); 
 
         public DTSweepContext()
         {
@@ -164,7 +162,7 @@ namespace Poly2Tri
             Front.AddNode(middle);
 
             // TODO: I think it would be more intuitive if head is middles next and not previous
-            //       so swap head and tail
+            //so swap head and tail
             Front.Head.Next = middle;
             middle.Next = Front.Tail;
             middle.Prev = Front.Head;
@@ -233,12 +231,38 @@ namespace Poly2Tri
             Head = p1;
             Tail = p2;
 
-            //        long time = System.nanoTime();
-            // Sort the points along y-axis
-            Points.Sort(_comparator);
-            //        logger.info( "Triangulation setup [{}ms]", ( System.nanoTime() - time ) / 1e6 );
-        }
+            //long time = System.nanoTime();
+            //Sort the points along y-axis
+            Points.Sort(Compare);
 
+            //logger.info( "Triangulation setup [{}ms]", ( System.nanoTime() - time ) / 1e6 );
+        }
+        static int Compare(TriangulationPoint p1, TriangulationPoint p2)
+        {
+            if (p1.Y < p2.Y)
+            {
+                return -1;
+            }
+            else if (p1.Y > p2.Y)
+            {
+                return 1;
+            }
+            else
+            {
+                if (p1.X < p2.X)
+                {
+                    return -1;
+                }
+                else if (p1.X > p2.X)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+        }
 
         public void FinalizeTriangulation()
         {

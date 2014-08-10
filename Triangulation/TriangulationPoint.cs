@@ -59,24 +59,12 @@ namespace Poly2Tri
 
         public void AddEdge(DTSweepConstraint e)
         {
-            if (myEdges == null) myEdges = new List<DTSweepConstraint>();
+            if (myEdges == null)
+            {
+                myEdges = new List<DTSweepConstraint>();
+            }
             myEdges.Add(e);
-        }
-
-        //public DTSweepConstraint FindFirst(TriangulationPoint eq)
-        //{
-        //    int j = myEdges.Count;
-        //    for (int i = 0; i < j; ++i)
-        //    {
-        //        var e = myEdges[i];
-        //        if (e.Q == eq || e.P == eq)
-        //        {
-        //            return e;
-        //        }
-        //    }
-        //    return null;
-        //}
-
+        } 
         public IEnumerable<DTSweepConstraint> GetEdgeIter()
         {
             List<DTSweepConstraint> edges = this.myEdges;
@@ -89,9 +77,13 @@ namespace Poly2Tri
             }
         }
         public bool HasEdges { get { return myEdges != null; } }
-        public static bool IsEqualPointCoord(TriangulationPoint a, TriangulationPoint b)
+
+        //------------------------------------------------------------
+#if DEBUG
+        public static bool dbugIsEqualPointCoord(TriangulationPoint a, TriangulationPoint b)
         {
             return a.X == b.X && a.Y == b.Y;
         }
+#endif
     }
 }
