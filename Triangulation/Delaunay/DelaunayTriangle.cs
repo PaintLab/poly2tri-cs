@@ -242,6 +242,32 @@ namespace Poly2Tri
             }
             //Neighbors[i] = t;
         }
+        private void MarkNeighbor(int i_p1, int i_p2, DelaunayTriangle t)
+        {
+            //int i =;
+            //if (i == -1) throw new Exception("Error marking neighbors -- t doesn't contain edge p1-p2!"); 
+            switch (FindEdgeIndex(i_p1, i_p2))
+            {
+                case 0:
+                    {
+                        this.N0 = t;
+                    } break;
+                case 1:
+                    {
+                        this.N1 = t;
+                    } break;
+                case 2:
+                    {
+                        this.N2 = t;
+                    } break;
+                default:
+                    {   //may be -1 
+                        throw new Exception("Error marking neighbors -- t doesn't contain edge p1-p2!");
+                    }
+            }
+            //Neighbors[i] = t;
+        }
+
         public void ClearAllNBs()
         {
             N0 = N1 = N2 = null;
@@ -255,19 +281,19 @@ namespace Poly2Tri
             // Points of this triangle also belonging to t 
             //-------------------------
             //use temp name technique 2 ***
-            //1. clear points of t 
-            P0.tempName = P1.tempName = P2.tempName = 0;
+            //1. clear points of this
+            P0.tempName = P1.tempName = P2.tempName = 3;
             //2. assign tempName for t
-            t.P0.tempName = t.P1.tempName = t.P2.tempName = 1;
+            t.P0.tempName = 0; t.P1.tempName = 1; t.P2.tempName = 2; 
 
-            bool a = P0.tempName != 0;
-            bool b = P1.tempName != 0;
-            bool c = P2.tempName != 0;
+            bool a = P0.tempName != 3;
+            bool b = P1.tempName != 3;
+            bool c = P2.tempName != 3;
 
-
-            if (b && c) { N0 = t; t.MarkNeighbor(P1, P2, this); }
-            else if (a && c) { N1 = t; t.MarkNeighbor(P0, P2, this); }
-            else if (a && b) { N2 = t; t.MarkNeighbor(P0, P1, this); }
+            //P1.tempName 
+            if (b && c) { N0 = t; t.MarkNeighbor(P1.tempName, P2.tempName, this); }
+            else if (a && c) { N1 = t; t.MarkNeighbor(P0.tempName, P2.tempName, this); }
+            else if (a && b) { N2 = t; t.MarkNeighbor(P0.tempName, P1.tempName, this); }
             else throw new Exception("Failed to mark neighbor, doesn't share an edge!");
         }
 
@@ -596,7 +622,7 @@ namespace Poly2Tri
             {
                 //(0 + 1) % 3 => 2
                 //(0 + 2) % 3 => 1
-                N0.SelectAndMarkConstrainedEdge(P2, P1);
+                N0.SelectAndMarkConstrainedEdge(2, 1);
             }
             //-----------------
             //1
@@ -604,7 +630,7 @@ namespace Poly2Tri
             {
                 //(1 + 1) % 3 => 1
                 //(1 + 2) % 3 => 0
-                N1.SelectAndMarkConstrainedEdge(P1, P0);
+                N1.SelectAndMarkConstrainedEdge(1, 0);
             }
             //-----------------
             //2
@@ -613,7 +639,7 @@ namespace Poly2Tri
                 //(2 + 1) % 3 => 0
                 //(2 + 2) % 3 => 1
 
-                N2.SelectAndMarkConstrainedEdge(P0, P1);
+                N2.SelectAndMarkConstrainedEdge(0, 1);
             }
         }
 
@@ -629,18 +655,18 @@ namespace Poly2Tri
             if (this.C0)
             {    //(0 + 1) % 3 => 2
                 //(0 + 2) % 3 => 1
-                triangle.SelectAndMarkConstrainedEdge(P2, P1);
+                triangle.SelectAndMarkConstrainedEdge(2, 11);
             }
             if (this.C1)
             {   //(1 + 1) % 3 => 1
                 //(1 + 2) % 3 => 0
-                triangle.SelectAndMarkConstrainedEdge(P1, P0);
+                triangle.SelectAndMarkConstrainedEdge(1, 0);
             }
             if (this.C2)
             {
                 //(2 + 1) % 3 => 0
                 //(2 + 2) % 3 => 1
-                triangle.SelectAndMarkConstrainedEdge(P0, P1);
+                triangle.SelectAndMarkConstrainedEdge(0, 1);
             }
         }
 
@@ -661,7 +687,7 @@ namespace Poly2Tri
                 {
                     //(0 + 1) % 3 => 2;
                     //(0 + 2) % 3 => 1;
-                    SelectAndMarkConstrainedEdge(t.P2, t.P1);
+                    SelectAndMarkConstrainedEdge(2, 1);
                 }
                 //-----------------------------
                 //1
@@ -669,7 +695,7 @@ namespace Poly2Tri
                 {
                     //(1 + 1) % 3 => 1;
                     //(1 + 2) % 3 => 0;
-                    SelectAndMarkConstrainedEdge(t.P1, t.P0);
+                    SelectAndMarkConstrainedEdge(1, 0);
                 }
                 //-----------------------------
                 //2
@@ -677,16 +703,16 @@ namespace Poly2Tri
                 {
                     //(2 + 1) % 3 => 0;
                     //(2 + 2) % 3 => 1;
-                    SelectAndMarkConstrainedEdge(t.P0, t.P1);
+                    SelectAndMarkConstrainedEdge(0, 1);
                 }
             }
         }
 
 
-        public void SelectAndMarkConstrainedEdge(DTSweepConstraint edge)
-        {
-            SelectAndMarkConstrainedEdge(edge.P, edge.Q);
-        }
+        //public void SelectAndMarkConstrainedEdge(DTSweepConstraint edge)
+        //{
+        //    SelectAndMarkConstrainedEdge(edge.P, edge.Q);
+        //}
 
         /// <summary>
         /// Mark edge as constrained
@@ -695,7 +721,10 @@ namespace Poly2Tri
         {
             MarkEdgeConstraint(FindEdgeIndex(p, q), true);
         }
-
+        public void SelectAndMarkConstrainedEdge(int i_p, int i_q)
+        {
+            MarkEdgeConstraint(FindEdgeIndex(i_p, i_q), true);
+        }
         public double Area()
         {
             double b = P0.X - P1.X;
@@ -726,93 +755,17 @@ namespace Poly2Tri
             P0.tempName = 0; //a as 1
             P1.tempName = 1; //b as 2
             P2.tempName = 2; //c as 3
-            //----------------------------- 
-            //3. check 
-            //int i1 = p1.tempName; //lower 2 bits (01b,10b,11b) //binary
-            //int i2 = p2.tempName << 2; //next upper 2 bits (01|00b,10|00b,11|00b) 
-            ////then switch pattern
-            //switch (i1 | i2)
-            //{
-
-            //    case (1 | (
-            //        {
-            //        } break;
-
-            //}
-            int i1 = p1.tempName;
-            int i2 = p2.tempName;
-
-            bool a = (i1 == 0 || i2 == 0);
-            bool b = (i1 == 1 || i2 == 1);
-            bool c = (i1 == 2 || i2 == 2);
-            if (b && c) return 0;
-            if (a && c) return 1;
-            if (a && b) return 2;
-
-            return -1;
-            //switch (i1)
-            //{
-            //    case 0://a = true
-            //        {
-            //            switch (i2)
-            //            {
-            //                case 2://c
-            //                    return 2; 
-            //            }
-            //        } break;
-            //}
-
-            //switch (i1)
-            //{
-            //    case 0://a = true
-            //        {
-            //            switch (i2)
-            //            {
-            //                case 0://a
-            //                    {
-            //                    } break;
-            //                case 1://b
-            //                    {
-            //                    } break;
-            //                case 2://c
-            //                    {
-            //                    } break;
-            //            }
-
-            //        } break;
-            //    case 1://b
-            //        {
-            //            switch (i2)
-            //            {
-            //                case 0://a
-            //                    {
-            //                    } break;
-            //                case 1://b
-            //                    {
-            //                    } break;
-            //                case 2://c
-            //                    {
-            //                    } break;
-            //            }
-            //        } break;
-            //    case 2://c
-            //        {
-            //            switch (i2)
-            //            {
-            //                case 0://a
-            //                    {
-            //                    } break;
-            //                case 1://b
-            //                    {
-            //                    } break;
-            //                case 2://c
-            //                    {
-            //                    } break;
-            //            }
-            //        } break;
-            //}
-
-
+            //-----------------------------   
+            //int i1 = p1.tempName;
+            //int i2 = p2.tempName;
+            //bool a = (i1 == 0 || i2 == 0);
+            //bool b = (i1 == 1 || i2 == 1);
+            //bool c = (i1 == 2 || i2 == 2);
+            //if (b && c) return 0;
+            //if (a && c) return 1;
+            //if (a && b) return 2;
+            //return -1; 
+            return FindEdgeIndex(p1.tempName, p2.tempName);
         }
 
         // public bool GetConstrainedEdgeCCW(TriangulationPoint p) { return EdgeIsConstrained((IndexOf(p) + 2) % 3); }
@@ -876,5 +829,132 @@ namespace Poly2Tri
                     } break;
             }
         }
+        public static int FindEdgeIndexWithTempNameFlags(int totalFlags)
+        {
+            //a =0,b =1,c= 3
+            //a && a= 0+0 =>0 =>err
+            //b && b = 1 +1 => 2 =>err
+            //c && c=  3+ 3=>6 => err 
+
+            //(a && b) = (b && a) => 0 + 1=> 1 : return 2
+            //(a && c) ==(c &&a) => 0+ 3=>3 : return 1
+            //(b && c) == (c&& b) =>1 +3=>4 : return 0
+
+            switch (totalFlags)
+            {
+                case 1:
+                    return 2;
+                case 2:
+                    return 1;
+                case 3:
+                    return 0;
+                default:
+                    return -1;
+            }
+
+        }
+        public static int FindEdgeIndex(int i1, int i2)
+        {
+            //-------------------------------
+            //implement switch table ***
+            //-------------------------------
+            //i1=0,=>a
+            //     i2=0=>err,i2=>1 =b,     i2=2=>c ,//i2=0=>err
+            //i1=1=>b
+            //     i2=0=>a,  i2=>1 =>err , i2=2=>c
+            //i1=2=>c
+            //     i2=0=>a,  i2=>1=>b,     i2=2=>c
+            //-------------------------------
+            //version 2
+            i1++; // 0=>1 (01) ,1=>2  (10),2=>3 (11)
+            i2 = (i2 + 1) << 2;//0=>1  (0100) ,1=>2   (1000), 2=>3 (1100)
+            switch (i1 | i2)
+            {
+                //a && b
+                //b && a
+                case ((1 << 2) | 2): //
+                case ((2 << 2) | 1): //  
+                    return 2;
+                //------------------
+                //a &&c 
+                //c&& a
+                case ((1 << 2) | 3): //
+                case ((3 << 2) | 1): //  
+                    return 1;
+                //b && c
+                //c && b
+                case ((2 << 2) | 3): //
+                case ((3 << 2) | 2): //  
+                    return 0;
+            }
+            return -1;
+
+
+            //-------------------------------
+            //version 1
+            //-------------------------------
+            //implement switch table ***
+            //-------------------------------
+            //i1=0,=>a
+            //     i2=0=>err,i2=>1 =b,     i2=2=>c ,//i2=0=>err
+            //i1=1=>b
+            //     i2=0=>a,  i2=>1 =>err , i2=2=>c
+            //i1=2=>c
+            //     i2=0=>a,  i2=>1=>b,     i2=2=>c
+            //-------------------------------
+            //switch (i1)
+            //{
+            //    case 0://a
+            //        {
+            //            switch (i2)
+            //            {
+            //                case 0:
+            //                    return -1;
+            //                case 1: //b => a && b
+            //                    return 2;
+            //                case 2://c => a&&c
+            //                    return 1;
+            //            }
+            //        } break;
+            //    case 1: //b
+            //        {
+            //            switch (i2)
+            //            {
+            //                case 0: //a => b && a => a&& b
+            //                    return 2;
+            //                case 1: //b => b && b
+            //                    return -1;
+            //                case 2://c => b && c
+            //                    return 0;
+            //            }
+            //        } break;
+            //    case 2://c
+            //        {
+            //            switch (i2)
+            //            {
+            //                case 0: //a => c && a => a&& c
+            //                    return 1;
+            //                case 1: //b => c && b => b &&c 
+            //                    return 0;
+            //                case 2://c => c && c=>err
+            //                    return -1;
+            //            }
+            //        } break;
+            //}
+            //-------------------------------
+            //original 
+
+            //bool a = (i1 == 0 || i2 == 0);
+            //bool b = (i1 == 1 || i2 == 1);
+            //bool c = (i1 == 2 || i2 == 2);
+            //if (b && c) return 0;
+            //if (a && c) return 1;
+            //if (a && b) return 2;
+
+            //return -1;
+        }
+        
     }
+
+
 }

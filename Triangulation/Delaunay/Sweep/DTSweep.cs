@@ -531,8 +531,7 @@ namespace Poly2Tri
         private static bool MarkEdgeSideOfTriangle(DelaunayTriangle triangle, TriangulationPoint ep, TriangulationPoint eq)
         {
             switch (triangle.FindEdgeIndex(ep, eq))
-            {
-
+            {   
                 case 0:
                     {   //mark constraint
                         triangle.C0 = true;
