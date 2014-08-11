@@ -40,24 +40,28 @@ namespace Poly2Tri
      */
     public class DTSweepContext : TriangulationContext
     {
+        //*** share object !
+
         // Inital triangle factor, seed triangle will extend 30% of 
         // PointSet width to both left and right.
         private const float ALPHA = 0.3f;
 
-        public AdvancingFront Front;
-        public TriangulationPoint Head { get; set; }
-        public TriangulationPoint Tail { get; set; }
+        internal AdvancingFront Front;
+        TriangulationPoint Head { get; set; }
+        TriangulationPoint Tail { get; set; }
 
         //----------------------------------
         //basin
-        public AdvancingFrontNode BasinLeftNode;
-        public AdvancingFrontNode BasinBottomNode;
-        public AdvancingFrontNode BasinRightNode;
-        public double BasinWidth;
-        public bool BasinLeftHighest;
+        internal AdvancingFrontNode BasinLeftNode;
+        internal AdvancingFrontNode BasinBottomNode;
+        internal AdvancingFrontNode BasinRightNode;
+        internal double BasinWidth;
+        internal bool BasinLeftHighest;
+        //----------------------------------
+        internal DTSweepConstraint EdgeEventConstrainedEdge;
+        internal bool EdgeEventRight;
         //----------------------------------
 
-        public DTSweepEdgeEvent EdgeEvent;
 
         public DTSweepContext()
         {
@@ -132,7 +136,7 @@ namespace Poly2Tri
         public override void Clear()
         {
             base.Clear();
-            
+
         }
 
         //public void AddNode(AdvancingFrontNode node)
@@ -149,7 +153,7 @@ namespace Poly2Tri
         //    // Front.RemoveNode(node);
         //}
 
-        public AdvancingFrontNode LocateNode(TriangulationPoint point)
+        internal AdvancingFrontNode LocateNode(TriangulationPoint point)
         {
             return Front.LocateNode(point);
         }
@@ -157,9 +161,9 @@ namespace Poly2Tri
         public void CreateAdvancingFront()
         {
             AdvancingFrontNode head, tail, middle;
-            
+
             // Initial triangle
-            DelaunayTriangle dtri = new DelaunayTriangle(Points[0], Tail, Head);            
+            DelaunayTriangle dtri = new DelaunayTriangle(Points[0], Tail, Head);
             Triangles.Add(dtri);
             head = new AdvancingFrontNode(dtri.P1);
             head.Triangle = dtri;
@@ -197,9 +201,19 @@ namespace Poly2Tri
             //        if (n != null) n.Triangle = t;
             //    }
 
+            //------------------------------
+            //PointCWFrom
+            //(FindIndexOf(0) + 2) % 3=>2
+            //(FindIndexOf(1) + 2) % 3=>0
+            //(FindIndexOf(2) + 2) % 3=>1
+            //------------------------------ 
+
             if (t.N0 == null)
             {
-                AdvancingFrontNode n = Front.LocatePoint(t.PointCWFrom(t.P0));
+                //AdvancingFrontNode n = Front.LocatePoint(t.PointCWFrom(t.P0));
+                //(FindIndexOf(0) + 2) % 3=>2
+
+                AdvancingFrontNode n = Front.LocatePoint(t.P2);
                 if (n != null)
                 {
                     n.Triangle = t;
@@ -207,7 +221,8 @@ namespace Poly2Tri
             }
             if (t.N1 == null)
             {
-                AdvancingFrontNode n = Front.LocatePoint(t.PointCWFrom(t.P1));
+                //(FindIndexOf(1) + 2) % 3=>0
+                AdvancingFrontNode n = Front.LocatePoint(t.P0);
                 if (n != null)
                 {
                     n.Triangle = t;
@@ -215,7 +230,7 @@ namespace Poly2Tri
             }
             if (t.N2 == null)
             {
-                AdvancingFrontNode n = Front.LocatePoint(t.PointCWFrom(t.P2));
+                AdvancingFrontNode n = Front.LocatePoint(t.P1);
                 if (n != null)
                 {
                     n.Triangle = t;
@@ -235,16 +250,20 @@ namespace Poly2Tri
             ymax = ymin = Points[0].Y;
 
             // Calculate bounds. Should be combined with the sorting
-            foreach (TriangulationPoint p in Points)
+            var tmp_points = this.Points;
+            for (int i = tmp_points.Count - 1; i >= 0; --i)
             {
+                var p = tmp_points[i];
                 if (p.X > xmax) xmax = p.X;
                 if (p.X < xmin) xmin = p.X;
                 if (p.Y > ymax) ymax = p.Y;
                 if (p.Y < ymin) ymin = p.Y;
             }
 
+
             double deltaX = ALPHA * (xmax - xmin);
             double deltaY = ALPHA * (ymax - ymin);
+
             TriangulationPoint p1 = new TriangulationPoint(xmax + deltaX, ymin - deltaY);
             TriangulationPoint p2 = new TriangulationPoint(xmin - deltaX, ymin - deltaY);
 

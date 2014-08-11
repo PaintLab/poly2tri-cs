@@ -38,7 +38,7 @@
 namespace Poly2Tri
 {
 
-    public class AdvancingFrontNode
+    class AdvancingFrontNode
     {
         public readonly TriangulationPoint Point;
         /// <summary>

@@ -72,6 +72,7 @@ namespace Poly2Tri
             this.P1 = p2;
             this.P2 = p3;
         }
+
         public int IndexOf(TriangulationPoint p)
         {
 
@@ -251,8 +252,7 @@ namespace Poly2Tri
         /// </summary>
         public void MarkNeighbor(DelaunayTriangle t)
         {
-            // Points of this triangle also belonging to t
-
+            // Points of this triangle also belonging to t 
             //-------------------------
             //use temp name technique 2 ***
             //1. clear points of t 
@@ -260,13 +260,10 @@ namespace Poly2Tri
             //2. assign tempName for t
             t.P0.tempName = t.P1.tempName = t.P2.tempName = 1;
 
-            bool a = P0.tempName != 0; //t.Contains(P0);
-            bool b = P1.tempName != 0; //t.Contains(P1);
-            bool c = P2.tempName != 0;//t.Contains(P2);  
+            bool a = P0.tempName != 0;
+            bool b = P1.tempName != 0;
+            bool c = P2.tempName != 0;
 
-            //bool a = t.Contains(P0);
-            //bool b = t.Contains(P1);
-            //bool c = t.Contains(P2);  
 
             if (b && c) { N0 = t; t.MarkNeighbor(P1, P2, this); }
             else if (a && c) { N1 = t; t.MarkNeighbor(P0, P2, this); }
@@ -281,7 +278,82 @@ namespace Poly2Tri
             Debug.Assert(t != this, "self-pointer error");
             return PointCWFrom(t.PointCWFrom(p));
         }
+        public TriangulationPoint OppositePoint(DelaunayTriangle t,
+            TriangulationPoint p, int iPonT,
+            out int foundAtIndex,
+            out bool related_ec, out bool related_ed)
+        {
+            Debug.Assert(t != this, "self-pointer error");
+            //----
+            //note original function 
+            //PointCWFrom(t.PointCWFrom(p));
+            //so separate into 2 steps
+            var cw_point_on_T = t.PointCWFrom(iPonT);
+            //tempname techniqe ***
+            P0.tempName = 0; P1.tempName = 1; P2.tempName = 2;
+            switch (foundAtIndex = CalculateCWPoint(cw_point_on_T.tempName))
+            {
+                case 0:
+                    {
+                        related_ed = this.D0;
+                        related_ec = this.C0;
+                        return P0;
+                    }
+                case 1:
+                    {
+                        related_ed = this.D1;
+                        related_ec = this.C1;
+                        return P1;
+                    }
+                case 2:
+                default:
+                    {
+                        related_ed = this.D2;
+                        related_ec = this.C2;
+                        return P2;
+                    }
+            }
 
+
+
+
+            //int finalPoint = ((hintPointNumOfT + 2) % 3); //CW=> (FindIndexOf(point) + 2) % 3 
+            //switch ((finalPoint + 2) % 3)   //CW=> (FindIndexOf(point) + 2) % 3
+            //{
+            //    case 0: return P0;
+            //    case 1: return P1;
+            //    default: return P2;
+            //}
+
+        }
+        //public TriangulationPoint OppositePoint(DelaunayTriangle t, TriangulationPoint p)
+        //{
+        //    Debug.Assert(t != this, "self-pointer error");
+        //    return PointCWFrom(t.PointCWFrom(p));
+        //}
+        //public TriangulationPoint OppositePointOfP0
+        //{
+        //    get
+        //    {
+        //        //PointCWFrom
+        //        //return Points[(IndexOf(point) + 2) % 3];
+        //        //
+
+
+        //    }
+        //}
+        //public TriangulationPoint OppositePointOfP1
+        //{
+        //    get
+        //    {
+        //    }
+        //}
+        //public TriangulationPoint OppositePointOfP2
+        //{
+        //    get
+        //    {
+        //    }
+        //}
         public DelaunayTriangle NeighborCWFrom(TriangulationPoint point)
         {
             switch ((IndexOf(point) + 1) % 3)
@@ -363,7 +435,7 @@ namespace Poly2Tri
 
         public DelaunayTriangle NeighborAcrossFrom(TriangulationPoint point)
         {
-            // return Neighbors[InternalIndexOf(point)];
+
             switch (FindIndexOf(point))
             {
                 case 0:
@@ -389,12 +461,24 @@ namespace Poly2Tri
                 default:
                     return this.P2;
             }
-
+        }
+        public TriangulationPoint PointCCWFrom(int index)
+        {
+            //return Points[(IndexOf(point) + 1) % 3]; 
+            switch ((index + 1) % 3)
+            {
+                case 0:
+                    return this.P0;
+                case 1:
+                    return this.P1;
+                case 2:
+                default:
+                    return this.P2;
+            }
         }
         public TriangulationPoint PointCWFrom(TriangulationPoint point)
         {
-            //return Points[(IndexOf(point) + 2) % 3];
-
+            //return Points[(IndexOf(point) + 2) % 3]; 
             switch ((FindIndexOf(point) + 2) % 3)
             {
                 case 0:
@@ -405,10 +489,42 @@ namespace Poly2Tri
                 default:
                     return this.P2;
             }
-
         }
-
-
+        public TriangulationPoint PointCWFrom(int index)
+        {
+            //return Points[(IndexOf(point) + 2) % 3]; 
+            switch ((index + 2) % 3)
+            {
+                case 0:
+                    return this.P0;
+                case 1:
+                    return this.P1;
+                case 2:
+                default:
+                    return this.P2;
+            }
+        }
+        public static int CalculateCWPoint(int index)
+        {
+            return (index + 2) % 3;
+        }
+        public static int CalculateCCWPoint(int index)
+        {
+            return (index + 1) % 3;
+        }
+        public TriangulationPoint GetPoint(int index)
+        {
+            switch (index)
+            {
+                case 0:
+                    return this.P0;
+                case 1:
+                    return this.P1;
+                case 2:
+                default:
+                    return this.P2;
+            }
+        }
         /// <summary>
         /// Legalize triangle by rotating clockwise around oPoint
         /// </summary>
@@ -633,6 +749,7 @@ namespace Poly2Tri
             if (a && c) return 1;
             if (a && b) return 2;
 
+            return -1;
             //switch (i1)
             //{
             //    case 0://a = true
@@ -695,7 +812,7 @@ namespace Poly2Tri
             //        } break;
             //}
 
-            return -1;
+
         }
 
         // public bool GetConstrainedEdgeCCW(TriangulationPoint p) { return EdgeIsConstrained((IndexOf(p) + 2) % 3); }
