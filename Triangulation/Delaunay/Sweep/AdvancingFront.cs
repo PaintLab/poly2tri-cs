@@ -122,7 +122,7 @@ namespace Poly2Tri
         }
 
         /// <summary>
-        /// This implementation will use simple node traversal algorithm to find a point on the front
+        /// This implementation uses simple node traversal algorithm to find a point on the front
         /// </summary>
         public AdvancingFrontNode LocatePoint(TriangulationPoint point)
         {

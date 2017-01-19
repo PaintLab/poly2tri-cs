@@ -43,12 +43,14 @@ namespace Poly2Tri
     class DebugForm : Form
     {
         List<PolygonInfo> Infos = new List<PolygonInfo>()
-			{ new PolygonInfo( "Two", (ExampleData.Two ))
-			, new PolygonInfo( "Bird", (ExampleData.Bird ))
-			, new PolygonInfo( "Custom", (ExampleData.Custom ))
-			, new PolygonInfo( "Debug", (ExampleData.Debug ))
-			, new PolygonInfo( "Debug2", (ExampleData.Debug2 ))
-			, new PolygonInfo( "Diamond", (ExampleData.Diamond ))
+			{
+            new PolygonInfo( "Diamond", (ExampleData.Diamond )),
+            new PolygonInfo( "Two", (ExampleData.Two )), 
+            new PolygonInfo( "Bird", (ExampleData.Bird )), 
+            new PolygonInfo( "Custom", (ExampleData.Custom )),
+            new PolygonInfo( "Debug", (ExampleData.Debug )),
+            new PolygonInfo( "Debug2", (ExampleData.Debug2 ))
+		
 			, new PolygonInfo( "Dude", (ExampleData.Dude ))
 			, new PolygonInfo( "Funny", (ExampleData.Funny ))
 			, new PolygonInfo( "NazcaHeron", (ExampleData.NazcaHeron ))
@@ -66,7 +68,7 @@ namespace Poly2Tri
         DateTime PointBounceStart = DateTime.Now;
         int PointBounceIndex;
 
-        DebugForm()
+        public DebugForm()
         {
             ClientSize = new Size(800, 600);
             BackColor = Color.Black;
@@ -201,7 +203,7 @@ namespace Poly2Tri
                         }
 
                         boblinepen.Width = 3.0f + 9 - 9 * bounce;
-                        fx.DrawLine(boblinepen, 
+                        fx.DrawLine(boblinepen,
                             f(Info.Polygon.Points[(PointBounceIndex + Info.Polygon.Points.Count - 1) % Info.Polygon.Points.Count]),
                             f(Info.Polygon.Points[PointBounceIndex]));
                     }

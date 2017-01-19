@@ -84,7 +84,13 @@ namespace Poly2Tri
         {
             return this.myEdges;
         }
-        public bool HasEdges { get { return myEdges != null; } }
+        //public bool HasEdges
+        //{
+        //    get
+        //    {   //TODO: review here
+        //        return myEdges != null;
+        //    }
+        //}
 
         //------------------------------------------------------------
 #if DEBUG

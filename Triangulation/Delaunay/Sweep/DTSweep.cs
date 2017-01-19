@@ -110,7 +110,7 @@ namespace Poly2Tri
 
                 node = PointEvent(tcx, point);
 
-                var internalEdgeList = point.GetInternalEdgeList();
+                List<DTSweepConstraint> internalEdgeList = point.GetInternalEdgeList();
 
                 if (internalEdgeList != null)
                 {
@@ -321,10 +321,10 @@ namespace Poly2Tri
             try
             {
 
-              
+
                 tcx.EdgeEventConstrainedEdge = edge;
-                tcx.EdgeEventRight = edge.P.X > edge.Q.X; 
-            
+                tcx.EdgeEventRight = edge.P.X > edge.Q.X;
+
                 if (tcx.IsDebugEnabled) { tcx.DTDebugContext.PrimaryTriangle = node.Triangle; }
 
                 if (MarkEdgeSideOfTriangle(node.Triangle, edge.P, edge.Q)) return;
@@ -531,7 +531,7 @@ namespace Poly2Tri
         private static bool MarkEdgeSideOfTriangle(DelaunayTriangle triangle, TriangulationPoint ep, TriangulationPoint eq)
         {
             switch (triangle.FindEdgeIndex(ep, eq))
-            {   
+            {
                 case 0:
                     {   //mark constraint
                         triangle.C0 = true;
@@ -879,12 +879,18 @@ namespace Poly2Tri
 
             // Find the bottom and right node
             tcx.BasinBottomNode = tcx.BasinLeftNode;
-            while (tcx.BasinBottomNode.HasNext && tcx.BasinBottomNode.Point.Y >= tcx.BasinBottomNode.Next.Point.Y) tcx.BasinBottomNode = tcx.BasinBottomNode.Next;
+            while (tcx.BasinBottomNode.HasNext && tcx.BasinBottomNode.Point.Y >= tcx.BasinBottomNode.Next.Point.Y)
+            {
+                tcx.BasinBottomNode = tcx.BasinBottomNode.Next;
+            }
 
             if (tcx.BasinBottomNode == tcx.BasinLeftNode) return; // No valid basin
 
             tcx.BasinRightNode = tcx.BasinBottomNode;
-            while (tcx.BasinRightNode.HasNext && tcx.BasinRightNode.Point.Y < tcx.BasinRightNode.Next.Point.Y) tcx.BasinRightNode = tcx.BasinRightNode.Next;
+            while (tcx.BasinRightNode.HasNext && tcx.BasinRightNode.Point.Y < tcx.BasinRightNode.Next.Point.Y)
+            {
+                tcx.BasinRightNode = tcx.BasinRightNode.Next;
+            }
 
             if (tcx.BasinRightNode == tcx.BasinBottomNode) return; // No valid basins
 
@@ -1073,6 +1079,7 @@ namespace Poly2Tri
                     continue;
                 }
                 //----------------------------------------------------- 
+                //TODO: review here ... i or p
                 //if (!TriangulationUtil.SmartIncircle(p, t.PointCCWFrom(p), t.PointCWFrom(p), op)) continue;
                 if (!TriangulationUtil.SmartInCircle(p, t.PointCCWFrom(i), t.PointCWFrom(i), op)) continue;
                 //----------------------------------------------------- 
