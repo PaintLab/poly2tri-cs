@@ -65,14 +65,14 @@ namespace Poly2Tri
         //next 4 bits for EdgeIsConstrained
         //int edgedNoteFlags;
 
-        public bool IsInterior { get; set; }
+       
         public DelaunayTriangle(TriangulationPoint p1, TriangulationPoint p2, TriangulationPoint p3)
         {
             this.P0 = p1;
             this.P1 = p2;
             this.P2 = p3;
         }
-
+        public bool IsInterior { get; set; }
         public int IndexOf(TriangulationPoint p)
         {
 
