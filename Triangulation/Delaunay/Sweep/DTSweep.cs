@@ -56,14 +56,16 @@ namespace Poly2Tri
 {
     public static class DTSweep
     {
-        private const double PI_div2 = Math.PI / 2;
-        private const double PI_3div4 = 3 * Math.PI / 4;
+        const double PI_div2 = Math.PI / 2;
+        const double PI_3div4 = 3 * Math.PI / 4;
 
         /// <summary>
         /// Triangulate simple polygon with holes
         /// </summary>
         public static void Triangulate(DTSweepContext tcx)
         {
+
+
             tcx.CreateAdvancingFront();
             Sweep(tcx);
 
@@ -98,8 +100,21 @@ namespace Poly2Tri
         /// <summary>
         /// Start sweeping the Y-sorted point set from bottom to top
         /// </summary>
-        private static void Sweep(DTSweepContext tcx)
+        static void Sweep(DTSweepContext tcx)
         {
+            //--------------------------
+            //step 2: (3.4) Sweeping
+            //following the idea of the sweep-line paradigm, the
+            //algorithm stops at every point and checks its status.
+            //  2 cases are possible:
+            //      1) a point is isolated OR 
+            //        it is the lower edge point( we name this case as a 'point event')
+            //      2) a point is the upper ending point of at least one line segment
+            //      (this case is considered as an 'edge event')
+            //Obviously, the point insertion is executed at each point regardless of its type, but the
+            //edge insertion is done only when the whole edge is swept
+            //--------------------------
+
             var points = tcx.Points;
             TriangulationPoint point;
             AdvancingFrontNode node;
@@ -152,7 +167,7 @@ namespace Poly2Tri
         /// <summary>
         /// If this is a Delaunay Triangulation of a pointset we need to fill so the triangle mesh gets a ConvexHull 
         /// </summary>
-        private static void FinalizationConvexHull(DTSweepContext tcx)
+        static void FinalizationConvexHull(DTSweepContext tcx)
         {
             AdvancingFrontNode n1, n2, n3;
             DelaunayTriangle t1;
@@ -215,7 +230,7 @@ namespace Poly2Tri
         /// <summary>
         /// We will traverse the entire advancing front and fill it to form a convex hull.
         /// </summary>
-        private static void TurnAdvancingFrontConvex(DTSweepContext tcx, AdvancingFrontNode b, AdvancingFrontNode c)
+        static void TurnAdvancingFrontConvex(DTSweepContext tcx, AdvancingFrontNode b, AdvancingFrontNode c)
         {
             AdvancingFrontNode first = b;
             while (c != tcx.Front.Tail)
@@ -247,7 +262,7 @@ namespace Poly2Tri
             }
         }
 
-        private static void FinalizationPolygon(DTSweepContext tcx)
+        static void FinalizationPolygon(DTSweepContext tcx)
         {
             // Get an Internal triangle to start with
             DelaunayTriangle t = tcx.Front.Head.Next.Triangle;
@@ -266,8 +281,11 @@ namespace Poly2Tri
         /// create a new triangle. If needed new holes and basins
         /// will be filled to.
         /// </summary>
-        private static AdvancingFrontNode PointEvent(DTSweepContext tcx, TriangulationPoint point)
+        static AdvancingFrontNode PointEvent(DTSweepContext tcx, TriangulationPoint point)
         {
+
+
+            //-----------------
             AdvancingFrontNode node, newNode;
             node = tcx.LocateNode(point);
 
@@ -834,7 +852,10 @@ namespace Poly2Tri
             while (node.HasNext)
             {
                 angle = HoleAngle(node);
-                if (angle > PI_div2 || angle < -PI_div2) break;
+                if (angle > PI_div2 || angle < -PI_div2)
+                {
+                    break;
+                }
                 Fill(tcx, node);
                 node = node.Next;
             }
@@ -1015,7 +1036,10 @@ namespace Poly2Tri
             // tcx.RemoveNode(node);
 
             // If it was legalized the triangle has already been mapped
-            if (!Legalize(tcx, triangle)) tcx.MapTriangleToNodes(triangle);
+            if (!Legalize(tcx, triangle))
+            {
+                tcx.MapTriangleToNodes(triangle);
+            }
         }
 
         /// <summary>
