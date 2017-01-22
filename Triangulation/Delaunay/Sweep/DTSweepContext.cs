@@ -61,7 +61,11 @@ namespace Poly2Tri
         internal DTSweepConstraint EdgeEventConstrainedEdge;
         internal bool EdgeEventRight;
         //----------------------------------
+#if DEBUG
 
+        static int dbugTotalId;
+        public int dbugId = dbugTotalId++;
+#endif
 
         public DTSweepContext()
         {
@@ -261,7 +265,6 @@ namespace Poly2Tri
 
             base.PrepareTriangulation(t);
 
-
             double xmax, xmin;
             double ymax, ymin;
 
@@ -283,24 +286,20 @@ namespace Poly2Tri
             double deltaX = ALPHA * (xmax - xmin);
             double deltaY = ALPHA * (ymax - ymin);
 
-           
-
-
             TriangulationPoint p1 = new TriangulationPoint(xmax + deltaX, ymin - deltaY);
             TriangulationPoint p2 = new TriangulationPoint(xmin - deltaX, ymin - deltaY);
 
             Head = p1;
             Tail = p2;
-            //long time = System.nanoTime();
-            //Sort the points along y-axis 
 
+            //long time = System.nanoTime();
+            //Sort the points along y-axis
             Points.Sort(Compare);
 
             //logger.info( "Triangulation setup [{}ms]", ( System.nanoTime() - time ) / 1e6 );
         }
         static int Compare(TriangulationPoint p1, TriangulationPoint p2)
         {
-
             if (p1.Y < p2.Y)
             {
                 return -1;

@@ -42,11 +42,21 @@ namespace Poly2Tri
         public readonly double Y;
         internal byte tempName;
         List<DTSweepConstraint> myEdges = new List<DTSweepConstraint>();
+#if DEBUG
+        static int dbugTotalId;
+        public readonly int dbugId = dbugTotalId++;
+#endif
 
 
         public TriangulationPoint(double x, double y)
         {
             X = x; Y = y;
+//#if DEBUG
+//            if (this.dbugId == 53)
+//            {
+//            }
+//#endif
+
         }
         public override string ToString()
         {
@@ -84,13 +94,7 @@ namespace Poly2Tri
         {
             return this.myEdges;
         }
-        //public bool HasEdges
-        //{
-        //    get
-        //    {   //TODO: review here
-        //        return myEdges != null;
-        //    }
-        //}
+        public bool HasEdges { get { return myEdges != null; } }
 
         //------------------------------------------------------------
 #if DEBUG

@@ -43,14 +43,12 @@ namespace Poly2Tri
     class DebugForm : Form
     {
         List<PolygonInfo> Infos = new List<PolygonInfo>()
-			{
-            new PolygonInfo( "Diamond", (ExampleData.Diamond )),
-            new PolygonInfo( "Two", (ExampleData.Two )), 
-            new PolygonInfo( "Bird", (ExampleData.Bird )), 
-            new PolygonInfo( "Custom", (ExampleData.Custom )),
-            new PolygonInfo( "Debug", (ExampleData.Debug )),
-            new PolygonInfo( "Debug2", (ExampleData.Debug2 ))
-		
+			{ new PolygonInfo( "Two", (ExampleData.Two ))
+			, new PolygonInfo( "Bird", (ExampleData.Bird ))
+			, new PolygonInfo( "Custom", (ExampleData.Custom ))
+			, new PolygonInfo( "Debug", (ExampleData.Debug ))
+			, new PolygonInfo( "Debug2", (ExampleData.Debug2 ))
+			, new PolygonInfo( "Diamond", (ExampleData.Diamond ))
 			, new PolygonInfo( "Dude", (ExampleData.Dude ))
 			, new PolygonInfo( "Funny", (ExampleData.Funny ))
 			, new PolygonInfo( "NazcaHeron", (ExampleData.NazcaHeron ))
@@ -68,7 +66,7 @@ namespace Poly2Tri
         DateTime PointBounceStart = DateTime.Now;
         int PointBounceIndex;
 
-        public DebugForm()
+        DebugForm()
         {
             ClientSize = new Size(800, 600);
             BackColor = Color.Black;
@@ -171,16 +169,13 @@ namespace Poly2Tri
                     float xmin = float.MaxValue, xmax = float.MinValue;
                     float ymin = float.MaxValue, ymax = float.MinValue;
 
-                    if (Info.Polygon.Points != null)
-                    {
-                        foreach (var point in Info.Polygon.Points)
+                    if (Info.Polygon.Points != null) foreach (var point in Info.Polygon.Points)
                         {
                             xmin = Math.Min(xmin, point.Xf);
                             xmax = Math.Max(xmax, point.Xf);
                             ymin = Math.Min(ymin, point.Yf);
                             ymax = Math.Max(ymax, point.Yf);
                         }
-                    }
 
                     float zoom = 0.8f * Math.Min(ClientSize.Width / (xmax - xmin), ClientSize.Height / (ymax - ymin));
                     float xmid = (xmin + xmax) / 2;
@@ -194,18 +189,10 @@ namespace Poly2Tri
                         PointBounceIndex %= Info.Polygon.Points.Count;
                         fx.DrawPolygon(outlinepen, Info.Polygon.Points.Select(f).ToArray());
 
-                        if (Info.Polygon.Holes != null)
-                        {
-                            foreach (var hole in Info.Polygon.Holes)
-                            {
-                                fx.DrawPolygon(holepen, hole.Points.Select(f).ToArray());
-                            }
-                        }
+                        if (Info.Polygon.Holes != null) foreach (var hole in Info.Polygon.Holes) fx.DrawPolygon(holepen, hole.Points.Select(f).ToArray());
 
                         boblinepen.Width = 3.0f + 9 - 9 * bounce;
-                        fx.DrawLine(boblinepen,
-                            f(Info.Polygon.Points[(PointBounceIndex + Info.Polygon.Points.Count - 1) % Info.Polygon.Points.Count]),
-                            f(Info.Polygon.Points[PointBounceIndex]));
+                        fx.DrawLine(boblinepen, f(Info.Polygon.Points[(PointBounceIndex + Info.Polygon.Points.Count - 1) % Info.Polygon.Points.Count]), f(Info.Polygon.Points[PointBounceIndex]));
                     }
 
                     if (Info.Polygon.Triangles != null)
@@ -223,7 +210,7 @@ namespace Poly2Tri
                     }
 
                     if (Info.Polygon.Points != null)
-                    {
+                    {   
                         foreach (var poly in new[] { Info.Polygon }.Concat(Info.Polygon.Holes ?? new Polygon[] { }))
                         {
                             var arrs = poly.Points.ToArray();
@@ -232,10 +219,7 @@ namespace Poly2Tri
                             {
                                 var point = f(arrs[i]);
                                 float r = 2.0f;
-                                if (PointBounceIndex == i)
-                                {
-                                    r += 2 - 2 * bounce;
-                                }
+                                if (PointBounceIndex == i) r += 2 - 2 * bounce;
                                 fx.DrawEllipse(pointpen, point.X - r, point.Y - r, 2 * r, 2 * r);
                             }
                         }
@@ -246,10 +230,7 @@ namespace Poly2Tri
                     {
                         var line = new PointF[] { f(poee.A), f(poee.B), f(poee.C) };
                         fx.DrawLines(poeepen, line);
-                        foreach (var p in line)
-                        {
-                            fx.DrawEllipse(poeepen, p.X - 2, p.Y - 2, 4, 4);
-                        }
+                        foreach (var p in line) fx.DrawEllipse(poeepen, p.X - 2, p.Y - 2, 4, 4);
                     }
 
                     var polyrenderend = DateTime.Now; // not counting all the text processing
@@ -264,11 +245,7 @@ namespace Poly2Tri
 
                     AddText(fx, "Memory: " + (GC.GetTotalMemory(false) / 1000000).ToString("N0") + "MB");
                     string s = "Collections    ";
-                    for (int i = 0, g = GC.MaxGeneration; i < g; ++i)
-                    {
-                        s = s + "    Gen" + i + ": " + GC.CollectionCount(i);
-                    }
-
+                    for (int i = 0, g = GC.MaxGeneration; i < g; ++i) s = s + "    Gen" + i + ": " + GC.CollectionCount(i);
                     AddText(fx, s);
 
                     AddText(fx, "Time    Triangulation: {0}ms    Render: {1}ms"
