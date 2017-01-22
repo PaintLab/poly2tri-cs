@@ -61,7 +61,11 @@ namespace Poly2Tri
         internal DTSweepConstraint EdgeEventConstrainedEdge;
         internal bool EdgeEventRight;
         //----------------------------------
+#if DEBUG
 
+        static int dbugTotalId;
+        public int dbugId = dbugTotalId++;
+#endif
 
         public DTSweepContext()
         {
@@ -241,6 +245,24 @@ namespace Poly2Tri
 
         public override void PrepareTriangulation(Triangulatable t)
         {
+            //--------------------
+            //initialization phase:
+            //all points are sorted regarding y coordinate, 
+            //regardless of whether they define an edge or not.
+            //those points havingthe same y coordinates are also sorted
+            //in the x direction.
+            //Each point is associated with the information wheter nor not
+            //it is the upper ending point of one or more edge e^i
+            //--------------------
+            //the following creates 'initial triangle',
+            //max bounds,
+            //p1 and p2=> artificial points
+            //-------------------
+            //during the fininalization phase,
+            //all triangles, having at least one vertex among the 
+            //artificial points, are erased.
+
+
             base.PrepareTriangulation(t);
 
             double xmax, xmin;
